@@ -1,8 +1,8 @@
 {
-    "name": "factorio-project",
+    "name": "factory-fight",
     "version": "0.0.1",
-    "title": "Factorio Project",
-    "author": "ness056 / Grob.",
+    "title": "Factory Fight",
+    "author": "ness056 and Grob.",
     "factorio_version": "1.1",
     "dependencies": ["base >= 1.1"],
     "description": "..."
