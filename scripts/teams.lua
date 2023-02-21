@@ -3,12 +3,16 @@ local Utils = require "utils"
 Teams = {}
 
 function Teams.init()
-    game.create_force("blueSilo")
-    game.create_force("redSilo")
+    local blueSilo = game.create_force("blueSilo")
+    blueSilo.share_chart = true
+    game.forces["player"].set_friend("blueSilo", true)
+    local redSilo = game.create_force("redSilo")
+    redSilo.share_chart = true
+    game.forces["player"].set_friend("redSilo", true)
 end
 
 function Teams.changeTeam(player, newTeam)  -- ness - changes the team of a player, player must be a LuaPlayer and newTeam must be "spec", "blue" or "red"
-    if global.gameStarted then      -- if the game hasn't started now, players will names will be write in a list and then, when the game will start, their forces and boxs will be created
+    if global.gameStarted then      -- if the game hasn't started now, players names will be write in a list and then, when the game will start, their forces and boxs will be created
 
     else
         if Teams.getTeamOfPlayer(player) == newTeam then return end
@@ -55,9 +59,18 @@ function Teams.createPlayerForce(player)    --ness - player must be a LuaPlayer.
     local force = game.create_force(team .. "~" .. player.name)
 
     force.set_friend(team .. "Silo", true)
-    for k, v in pairs(global[team .. "Players"]) do
-        force.set_friend(team .. "~" .. v)
+    game.forces["player"].set_friend(force, true)
+    game.forces[team .. "Silo"].set_friend(force, true)
+    for k, playerName in pairs(global[team .. "Players"]) do
+        if player.name == playerName then break end
+
+        force.set_friend(team .. "~" .. playerName, true)
+        game.forces[team .. "~" .. playerName].set_friend(force, true)
     end
+
+    force.share_chart = true
+
+    return force
 end
 
 function Teams.getTeamOfPlayer(player)      -- ness - returns the team of the player, player must be a LuaPlayer

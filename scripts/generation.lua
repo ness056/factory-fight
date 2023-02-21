@@ -42,8 +42,16 @@ function Generation.newGameSurface()
 
     local surface = game.create_surface(global.gameSurface, mapGenSettings)
 
-    surface.request_to_generate_chunks({0, 0}, 32)
+    local blueSZCenter = {-Config.generation.spawnerZoneDistanceFromCenterX - Config.generation.spawnerZoneWidth / 2, 0}
+    local redSZCenter = {-blueSZCenter[1], 0}
+
+    surface.request_to_generate_chunks({0, 0}, 4)
+    surface.request_to_generate_chunks(blueSZCenter, 4)
+    surface.request_to_generate_chunks(redSZCenter, 4)
     surface.force_generate_chunk_requests()
+
+    surface.create_entity{name = "rocket-silo", position = blueSZCenter, force = "blueSilo"}
+    surface.create_entity{name = "rocket-silo", position = redSZCenter, force = "redSilo"}
 end
 
 function Generation.onGameStarting()
@@ -63,8 +71,9 @@ function Generation.createPlayerBox(player)     -- ness - player must be a LuaPl
     if team == "blue" then factor = -1
     elseif team == "spec" then return end
 
-    local n = math.floor(global[team .. "BoxN"] / 2)
-    local xCenter = (Config.generation.spawnerZoneDistanceFromCenterX + Config.generation.spawnerZoneMaxWidth + Config.generation.playerBoxMaxWidth / 2 + 15) * factor
+    local n = math.ceil((global[team .. "BoxN"] % Config.generation.playerNBoxPerLine) / 2)
+    local d = math.floor(global[team .. "BoxN"] / Config.generation.playerNBoxPerLine) + 1
+    local xCenter = (Config.generation.spawnerZoneDistanceFromCenterX + Config.generation.spawnerZoneMaxWidth + Config.generation.playerBoxMaxWidth / 2 + 15 * d + Config.generation.playerBoxMaxWidth * d) * factor
     local yCenter = (-1) ^ global[team .. "BoxN"] * (Config.generation.playerBoxMaxHeight * n + 15 * n)
 
     game.surfaces[global.gameSurface].request_to_generate_chunks({xCenter, yCenter}, Config.generation.playerBoxWidth / 2)
@@ -80,6 +89,7 @@ function Generation.createPlayerBox(player)     -- ness - player must be a LuaPl
     Generation.setTilesArea(area, "landfill")
 
     player.teleport({xCenter, yCenter})
+    global.boxs[player.name] = {xCenter, yCenter}
 end
 
 function Generation.setTilesArea(area, tileName)    -- ness - area must be a boundingBox (https://lua-api.factorio.com/latest/Concepts.html#BoundingBox), tileName must be a tile name prototype

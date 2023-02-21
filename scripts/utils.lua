@@ -33,4 +33,8 @@ function Utils.removeByValue(array, value)  -- ness - removes the first element 
     return index
 end
 
+function Utils.getValidPosition(pos, radius)    -- ness - returns the closest non colliding position for a character
+    return game.surfaces[global.gameSurface].find_non_colliding_position("character", pos, radius, 0.01)
+end
+
 return Utils
