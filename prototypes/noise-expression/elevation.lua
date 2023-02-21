@@ -74,7 +74,7 @@ data:extend{{
                         }
                     },
                     tne(math.huge)
-                }                
+                }
             },
             tne(math.huge)
         }

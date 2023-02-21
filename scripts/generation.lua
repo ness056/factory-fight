@@ -46,9 +46,15 @@ function Generation.newGameSurface()
     local redSZCenter = {-blueSZCenter[1], 0}
 
     surface.request_to_generate_chunks({0, 0}, 4)
-    surface.request_to_generate_chunks(blueSZCenter, 4)
-    surface.request_to_generate_chunks(redSZCenter, 4)
+
+    local genWidth = math.ceil(Config.generation.spawnerZoneMaxWidth / 64) + 1
+    local genHeight = math.ceil(Config.generation.spawnerZoneMaxHeight / 64) + 1
+    surface.request_to_generate_chunks(blueSZCenter, math.max(genWidth, genHeight))
+    surface.request_to_generate_chunks(redSZCenter, math.max(genWidth, genHeight))
     surface.force_generate_chunk_requests()
+
+    Generation.createBorder({blueSZCenter[1] - Config.generation.spawnerZoneWidth / 2, 0}, Config.generation.spawnerZoneMaxWidth, Config.generation.spawnerZoneMaxHeight)
+    Generation.createBorder({redSZCenter[1] + Config.generation.spawnerZoneWidth / 2, 0}, Config.generation.spawnerZoneMaxWidth, Config.generation.spawnerZoneMaxHeight)
 
     surface.create_entity{name = "rocket-silo", position = blueSZCenter, force = "blueSilo"}
     surface.create_entity{name = "rocket-silo", position = redSZCenter, force = "redSilo"}
@@ -73,10 +79,10 @@ function Generation.createPlayerBox(player)     -- ness - player must be a LuaPl
 
     local n = math.ceil((global[team .. "BoxN"] % Config.generation.playerNBoxPerLine) / 2)
     local d = math.floor(global[team .. "BoxN"] / Config.generation.playerNBoxPerLine) + 1
-    local xCenter = (Config.generation.spawnerZoneDistanceFromCenterX + Config.generation.spawnerZoneMaxWidth + Config.generation.playerBoxMaxWidth / 2 + 15 * d + Config.generation.playerBoxMaxWidth * d) * factor
-    local yCenter = (-1) ^ global[team .. "BoxN"] * (Config.generation.playerBoxMaxHeight * n + 15 * n)
+    local xCenter = (Config.generation.spawnerZoneDistanceFromCenterX + Config.generation.spawnerZoneMaxWidth + Config.generation.playerBoxMaxWidth / 2 + Config.generation.bordersWidth * d + Config.generation.playerBoxMaxWidth * d) * factor
+    local yCenter = (-1) ^ global[team .. "BoxN"] * (Config.generation.playerBoxMaxHeight * n + Config.generation.bordersWidth * n) + ((Config.generation.playerNBoxPerLine + 1) % 2 * Config.generation.playerBoxMaxHeight / 2)
 
-    game.surfaces[global.gameSurface].request_to_generate_chunks({xCenter, yCenter}, Config.generation.playerBoxWidth / 2)
+    game.surfaces[global.gameSurface].request_to_generate_chunks({xCenter, yCenter}, math.ceil(math.max(Config.generation.playerBoxMaxWidth, Config.generation.playerBoxMaxHeight) / 64))
     game.surfaces[global.gameSurface].force_generate_chunk_requests()
 
     global[team .. "BoxN"] = global[team .. "BoxN"] + 1
@@ -87,6 +93,7 @@ function Generation.createPlayerBox(player)     -- ness - player must be a LuaPl
     }
 
     Generation.setTilesArea(area, "landfill")
+    Generation.createBorder({xCenter, yCenter}, Config.generation.playerBoxMaxWidth, Config.generation.playerBoxMaxHeight)
 
     player.teleport({xCenter, yCenter})
     global.boxs[player.name] = {xCenter, yCenter}
@@ -98,6 +105,25 @@ function Generation.setTilesArea(area, tileName)    -- ness - area must be a bou
     for x = 0, area[2][1] - area[1][1], 1 do
         for y = 0, area[2][2] - area[1][2], 1 do
             table.insert(tiles, {position = {area[1][1] + x, area[1][2] + y}, name = tileName})
+        end
+    end
+
+    game.surfaces[global.gameSurface].set_tiles(tiles)
+end
+
+function Generation.createBorder(center, width, height)  -- ness - creates a border of void around zones (like boxs and spawner zones), center must be a map position, width and height is the size of the side of the inner square of the border
+    local tiles = {}
+
+    for x = 0, width + Config.generation.bordersWidth * 2, 1 do
+        for y = 0, height + Config.generation.bordersWidth * 2, 1 do
+            if x < Config.generation.bordersWidth or x - Config.generation.bordersWidth - width > 0 or
+            y < Config.generation.bordersWidth or y - Config.generation.bordersWidth - height > 0 then
+                local pos = {center[1] + x - width / 2 - Config.generation.bordersWidth, center[2] + y - height / 2 - Config.generation.bordersWidth}
+                local tile = game.surfaces[global.gameSurface].get_tile(pos[1], pos[2])
+                if tile.name == "water" or tile.name == "deepwater" then
+                    table.insert(tiles, {position = pos, name = "out-of-map"})
+                end
+            end
         end
     end
 
