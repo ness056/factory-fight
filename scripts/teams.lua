@@ -1,4 +1,5 @@
 local Utils = require "utils"
+local Generation = require "generation"
 
 Teams = {}
 
@@ -12,30 +13,32 @@ function Teams.init()
 end
 
 function Teams.changeTeam(player, newTeam)  -- ness - changes the team of a player, player must be a LuaPlayer and newTeam must be "spec", "blue" or "red"
-    if global.gameStarted then      -- if the game hasn't started now, players names will be write in a list and then, when the game will start, their forces and boxs will be created
+    if Teams.getTeamOfPlayer(player) == newTeam then return end
+
+    if newTeam == "spec" then
+        table.insert(global.specPlayers, player.name)
+        Utils.removeByValue(global.bluePlayers, player.name)
+        Utils.removeByValue(global.redPlayers, player.name)
+
+    elseif newTeam == "blue" then
+        table.insert(global.bluePlayers, player.name)
+        Utils.removeByValue(global.specPlayers, player.name)
+        Utils.removeByValue(global.redPlayers, player.name)
+
+    elseif newTeam == "red" then
+        table.insert(global.redPlayers, player.name)
+        Utils.removeByValue(global.specPlayers, player.name)
+        Utils.removeByValue(global.bluePlayers, player.name)
 
     else
-        if Teams.getTeamOfPlayer(player) == newTeam then return end
+        Utils.error("!!!! Team " .. newTeam .. " doesn't exist !!!!")
+        return
+    end
 
-        if newTeam == "spec" then
-            table.insert(global.specPlayers, player.name)
-            Utils.removeByValue(global.bluePlayers, player.name)
-            Utils.removeByValue(global.redPlayers, player.name)
-
-        elseif newTeam == "blue" then
-            table.insert(global.bluePlayers, player.name)
-            Utils.removeByValue(global.specPlayers, player.name)
-            Utils.removeByValue(global.redPlayers, player.name)
-
-        elseif newTeam == "red" then
-            table.insert(global.redPlayers, player.name)
-            Utils.removeByValue(global.specPlayers, player.name)
-            Utils.removeByValue(global.bluePlayers, player.name)
-
-        else
-            Utils.error("!!!! Team " .. newTeam .. " doesn't exist !!!!")
-            return
-        end
+    if global.gameStarted then      -- if the game hasn't started now, players names will be write in a list and then, when the game will start, their forces and boxs will be created
+        local force = Teams.createPlayerForce()
+        player.force = force
+        Generation.createPlayerBox(player)
     end
 end
 

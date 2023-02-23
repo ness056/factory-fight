@@ -79,8 +79,8 @@ function Generation.createPlayerBox(player)     -- ness - player must be a LuaPl
 
     local n = math.ceil((global[team .. "BoxN"] % Config.generation.playerNBoxPerLine) / 2)
     local d = math.floor(global[team .. "BoxN"] / Config.generation.playerNBoxPerLine) + 1
-    local xCenter = (Config.generation.spawnerZoneDistanceFromCenterX + Config.generation.spawnerZoneMaxWidth + Config.generation.playerBoxMaxWidth / 2 + Config.generation.bordersWidth * d + Config.generation.playerBoxMaxWidth * d) * factor
-    local yCenter = (-1) ^ global[team .. "BoxN"] * (Config.generation.playerBoxMaxHeight * n + Config.generation.bordersWidth * n) + ((Config.generation.playerNBoxPerLine + 1) % 2 * Config.generation.playerBoxMaxHeight / 2)
+    local xCenter = (Config.generation.spawnerZoneDistanceFromCenterX + Config.generation.spawnerZoneMaxWidth + Config.generation.playerBoxMaxWidth / 2 + (Config.generation.bordersWidth + Config.generation.playerBoxMaxWidth) * d) * factor
+    local yCenter = (-1) ^ global[team .. "BoxN"] * (Config.generation.playerBoxMaxHeight + Config.generation.bordersWidth) * n + ((Config.generation.playerNBoxPerLine + 1) % 2 * Config.generation.playerBoxMaxHeight / 2)
 
     game.surfaces[global.gameSurface].request_to_generate_chunks({xCenter, yCenter}, math.ceil(math.max(Config.generation.playerBoxMaxWidth, Config.generation.playerBoxMaxHeight) / 64))
     game.surfaces[global.gameSurface].force_generate_chunk_requests()
@@ -88,7 +88,7 @@ function Generation.createPlayerBox(player)     -- ness - player must be a LuaPl
     global[team .. "BoxN"] = global[team .. "BoxN"] + 1
 
     local area = {
-        {xCenter - Config.generation.playerBoxWidth / 2 , yCenter - Config.generation.playerBoxHeight / 2},
+        {xCenter - Config.generation.playerBoxWidth / 2, yCenter - Config.generation.playerBoxHeight / 2},
         {xCenter + Config.generation.playerBoxWidth / 2, yCenter + Config.generation.playerBoxHeight / 2}
     }
 
