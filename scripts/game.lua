@@ -6,6 +6,8 @@ Game = {}
 function Game.start()
     Teams.onGameStarting()
     Generation.onGameStarting()
+
+    global.gameStarted = true
 end
 
 return Game
