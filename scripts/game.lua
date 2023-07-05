@@ -1,13 +1,14 @@
-local Generation = require "__factory-fight__.scripts.generation"
-local Teams = require "__factory-fight__.scripts.teams"
+local Teams = require("__factory-fight__.scripts.teams")
+local Generation = require("__factory-fight__.scripts.generation")
 
-Game = {}
+local Game = {}
 
 function Game.start()
-    Teams.onGameStarting()
     Generation.onGameStarting()
+    Teams.onGameStarting()
 
     global.gameStarted = true
+    global.gameStratingTick = game.tick
 end
 
 return Game

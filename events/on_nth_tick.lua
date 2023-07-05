@@ -1,4 +1,6 @@
 local Config = require "__factory-fight__.config"
+local Gui = require("__factory-fight__.scripts.gui")
+local Player = require("__factory-fight__.scripts.player")
 
 return {
     {
@@ -23,7 +25,30 @@ return {
             game.forces["blueSilo"].chart(game.surfaces[global.gameSurface], blueArea)
             game.forces["redSilo"].chart(game.surfaces[global.gameSurface], redArea)
             game.forces["player"].chart(game.surfaces[global.gameSurface], specArea)
+
+            --[[---------
+            local x = Config.generation.spawnerZoneMaxWidth + Config.generation.spawnerZoneDistanceFromCenterX + 96
+            local y = math.max(Config.generation.spawnerZoneMaxHeight / 2, (Config.generation.playerBoxMaxHeight + Config.generation.bordersWidth) * Config.generation.playerNBoxPerLine / 2) + 96
+            game.forces["blueSilo"].chart(game.surfaces[global.gameSurface], {{-x, -y}, {x, y}})
+            game.forces["redSilo"].chart(game.surfaces[global.gameSurface], {{-x, -y}, {x, y}})]]
         end,
         delay = 100
+    },
+
+    {
+        f = function (event)
+            Gui.refreshAllGui()
+
+            if global.gameStarted == false then return end
+
+            for k, player in pairs(global.bluePlayers) do
+                Player.income("blue", player, 1)
+            end
+
+            for k, player in pairs(global.redPlayers) do
+                Player.income("red", player, 1)
+            end
+        end,
+        delay = 60
     }
 }

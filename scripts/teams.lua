@@ -1,7 +1,8 @@
-local Utils = require "utils"
-local Generation = require "generation"
+local Utils = require("__factory-fight__.scripts.utils")
+local Generation = require("__factory-fight__.scripts.generation")
+local Player = require("__factory-fight__.scripts.player")
 
-Teams = {}
+local Teams = {}
 
 function Teams.init()
     local blueSilo = game.create_force("blueSilo")
@@ -13,7 +14,7 @@ function Teams.init()
 end
 
 function Teams.changeTeam(player, newTeam)  -- ness - changes the team of a player, player must be a LuaPlayer and newTeam must be "spec", "blue" or "red"
-    if Teams.getTeamOfPlayer(player) == newTeam then return end
+    if Player.getTeamOfPlayer(player) == newTeam then return end
 
     if newTeam == "spec" then
         table.insert(global.specPlayers, player.name)
@@ -35,10 +36,19 @@ function Teams.changeTeam(player, newTeam)  -- ness - changes the team of a play
         return
     end
 
-    if global.gameStarted then      -- if the game hasn't started now, players names will be write in a list and then, when the game will start, their forces and boxs will be created
-        local force = Teams.createPlayerForce()
-        player.force = force
-        Generation.createPlayerBox(player)
+    if global.gameStarted and not global.boxs[newTeam .. "~" .. player.name] and newTeam ~= "spec" then      -- if the game hasn't started now, players names will be write in a list and then, when the game will start, their forces and boxs will be created
+        Generation.createPlayerBox(player, newTeam)
+        Teams.createPlayerForce(player)
+    end
+
+    if global.gameStarted and newTeam ~= "spec" then
+        player.force = newTeam .. "~" .. player.name
+        local factor = Utils.getSideFactor(newTeam)
+        local boxCenter = global.boxs[newTeam .. "~" .. player.name]
+        player.teleport({boxCenter[1] - 33 * factor, boxCenter[2] * math.abs(factor)})
+    else
+        player.force = "player"
+        player.teleport({0, 0})
     end
 end
 
@@ -57,7 +67,7 @@ function Teams.onGameStarting()     -- ness - create pending forces
 end
 
 function Teams.createPlayerForce(player)    --ness - player must be a LuaPlayer. returns the new force name
-    local team = Teams.getTeamOfPlayer(player)
+    local team = Player.getTeamOfPlayer(player)
 
     local force = game.create_force(team .. "~" .. player.name)
 
@@ -71,21 +81,11 @@ function Teams.createPlayerForce(player)    --ness - player must be a LuaPlayer.
         game.forces[team .. "~" .. playerName].set_friend(force, true)
     end
 
+    force.set_spawn_position(global.boxs[team .. "~" .. player.name], global.gameSurface)
+
     force.share_chart = true
 
     return force
-end
-
-function Teams.getTeamOfPlayer(player)      -- ness - returns the team of the player, player must be a LuaPlayer
-    if Utils.indexOf(global.specPlayers, player.name) then
-        return "spec"
-    elseif Utils.indexOf(global.bluePlayers, player.name) then
-        return "blue"
-    elseif Utils.indexOf(global.redPlayers, player.name) then
-        return "red"
-    else
-        Utils.error("!!!! " .. player.name .. " isn't in any team !!!!")
-    end
 end
 
 return Teams

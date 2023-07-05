@@ -1,5 +1,5 @@
 local Config = require "__factory-fight__.config"
-local Utils = require "__factory-fight__.scripts.utils"
+local Utils = require("__factory-fight__.scripts.utils")
 
 return function (event)
     local player = game.players[event.player_index]

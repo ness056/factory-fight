@@ -1,6 +1,6 @@
 local Global = {}
 
-function Global.init()
+function Global.init()              -- ness - define all global variables
     global.gameSurface = "game0"    -- ness - game surface name, alternates between "game0" and "game1"
     global.bluePlayers = {}         -- ness - blue team player list (blue team is on the left)
     global.blueBoxN = 0             -- ness - number of player box which were created in the blue side
@@ -9,6 +9,7 @@ function Global.init()
     global.boxs = {}                -- ness - a table with k = player name and v = box center
     global.specPlayers = {}         -- ness - list of spectators
     global.gameStarted = false      -- ness - set to true when game starts
+    global.gameStratingTick = -1    -- ness - egals to -1 if the game is not started
 end
 
 return Global

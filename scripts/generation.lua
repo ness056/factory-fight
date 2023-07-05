@@ -1,7 +1,7 @@
 local Config = require "__factory-fight__.config"
-local Teams = require "teams"
+local Utils = require("__factory-fight__.scripts.utils")
 
-Generation = {}
+local Generation = {}
 
 function Generation.deleteNauvis() -- ness - just a function to delete and disable all chunks in nauvis
     local nauvis = game.surfaces[1]
@@ -15,6 +15,10 @@ function Generation.deleteNauvis() -- ness - just a function to delete and disab
 end
 
 function Generation.newGameSurface()
+    game.map_settings.pollution.enabled = false
+    game.map_settings.enemy_evolution.enabled = false
+    game.map_settings.enemy_expansion.enabled = false
+
     if global.gameSurface == "game0" then
         global.gameSurface = "game1"
     else
@@ -56,30 +60,37 @@ function Generation.newGameSurface()
     Generation.createBorder({blueSZCenter[1] - Config.generation.spawnerZoneWidth / 2, 0}, Config.generation.spawnerZoneMaxWidth, Config.generation.spawnerZoneMaxHeight)
     Generation.createBorder({redSZCenter[1] + Config.generation.spawnerZoneWidth / 2, 0}, Config.generation.spawnerZoneMaxWidth, Config.generation.spawnerZoneMaxHeight)
 
-    surface.create_entity{name = "rocket-silo", position = blueSZCenter, force = "blueSilo"}
-    surface.create_entity{name = "rocket-silo", position = redSZCenter, force = "redSilo"}
+    local blueSilo = surface.create_entity{name = "rocket-silo", position = blueSZCenter, force = "blueSilo"}
+    blueSilo.minable = false
+    local redSilo = surface.create_entity{name = "rocket-silo", position = redSZCenter, force = "redSilo"}
+    redSilo.minable = false
+
+    local blueTPos = {blueSZCenter[1] - 10, blueSZCenter[2]}
+    local redTPos = {redSZCenter[1] + 11, redSZCenter[2]}
+
+    local blueTp = surface.create_entity{name = "teleporter", position = blueTPos, force = "blueSilo"}
+    blueTp.destructible = false
+    local redTp = surface.create_entity{name = "teleporter", position = redTPos, force = "redSilo"}
+    redTp.destructible = false
 end
 
 function Generation.onGameStarting()
     for k, playerName in pairs(global.bluePlayers) do
-        Generation.createPlayerBox(game.players[playerName])
+        Generation.createPlayerBox(game.players[playerName], "blue")
     end
 
     for k, playerName in pairs(global.redPlayers) do
-        Generation.createPlayerBox(game.players[playerName])
+        Generation.createPlayerBox(game.players[playerName], "red")
     end
 end
 
-function Generation.createPlayerBox(player)     -- ness - player must be a LuaPlayer
-    local team = Teams.getTeamOfPlayer(player)
-
-    local factor = 1
-    if team == "blue" then factor = -1
-    elseif team == "spec" then return end
+function Generation.createPlayerBox(player, team)     -- ness - player must be a LuaPlayer
+    local factor = Utils.getSideFactor(team)
+    if factor == 0 then return end
 
     local n = math.ceil((global[team .. "BoxN"] % Config.generation.playerNBoxPerLine) / 2)
-    local d = math.floor(global[team .. "BoxN"] / Config.generation.playerNBoxPerLine) + 1
-    local xCenter = (Config.generation.spawnerZoneDistanceFromCenterX + Config.generation.spawnerZoneMaxWidth + Config.generation.playerBoxMaxWidth / 2 + (Config.generation.bordersWidth + Config.generation.playerBoxMaxWidth) * d) * factor
+    local d = math.floor(global[team .. "BoxN"] / Config.generation.playerNBoxPerLine)
+    local xCenter = (Config.generation.spawnerZoneDistanceFromCenterX + Config.generation.spawnerZoneMaxWidth + Config.generation.playerBoxMaxWidth / 2 + Config.generation.bordersWidth + 1 + (Config.generation.bordersWidth + Config.generation.playerBoxMaxWidth) * d) * factor
     local yCenter = (-1) ^ global[team .. "BoxN"] * (Config.generation.playerBoxMaxHeight + Config.generation.bordersWidth) * n + ((Config.generation.playerNBoxPerLine + 1) % 2 * Config.generation.playerBoxMaxHeight / 2)
 
     game.surfaces[global.gameSurface].request_to_generate_chunks({xCenter, yCenter}, math.ceil(math.max(Config.generation.playerBoxMaxWidth, Config.generation.playerBoxMaxHeight) / 64))
@@ -95,8 +106,15 @@ function Generation.createPlayerBox(player)     -- ness - player must be a LuaPl
     Generation.setTilesArea(area, "landfill")
     Generation.createBorder({xCenter, yCenter}, Config.generation.playerBoxMaxWidth, Config.generation.playerBoxMaxHeight)
 
-    player.teleport({xCenter, yCenter})
-    global.boxs[player.name] = {xCenter, yCenter}
+    local teleporter = game.surfaces[global.gameSurface].create_entity{name = "teleporter", position = {xCenter - 40 * factor, yCenter}, force = "player"}
+    teleporter.destructible = false
+
+    global.boxs[team .. "~" .. player.name] = {xCenter, yCenter}
+    player.teleport({xCenter - 33 * factor, yCenter})
+end
+
+function Generation.createChest(playerName, n)
+
 end
 
 function Generation.setTilesArea(area, tileName)    -- ness - area must be a boundingBox (https://lua-api.factorio.com/latest/Concepts.html#BoundingBox), tileName must be a tile name prototype
