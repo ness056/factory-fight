@@ -25,7 +25,7 @@ return function (event)
     if entity.position.x * factor < Config.generation.spawnerZoneDistanceFromCenterX
     or (entity.position.x * factor > Config.generation.spawnerZoneDistanceFromCenterX + Config.generation.spawnerZoneMaxWidth and entity.type == "unit-spawner")
     or (math.abs(entity.position.y) > Config.generation.spawnerZoneMaxHeight / 2 and entity.position.x * factor < Config.generation.spawnerZoneDistanceFromCenterX + Config.generation.spawnerZoneMaxWidth) then
-        deleteEntity(entity, player, "This cannot be placed here.")
+        deleteEntity(entity, player, {"cannot-be-placed"})
         return
     end
 
@@ -38,7 +38,7 @@ return function (event)
 
         local backEntity = surface.find_entity("linked-chest", {entity.position.x + shift.x, entity.position.y + shift.y})
         if not backEntity then
-            deleteEntity(entity, player, "Loaders can only be placed next to a linked chest.")
+            deleteEntity(entity, player, {"l-cannot-be-placed"})
             return
         end
 

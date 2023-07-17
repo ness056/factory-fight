@@ -113,10 +113,6 @@ function Generation.createPlayerBox(player, team)     -- ness - player must be a
     player.teleport({xCenter - 33 * factor, yCenter})
 end
 
-function Generation.createChest(playerName, n)
-
-end
-
 function Generation.setTilesArea(area, tileName)    -- ness - area must be a boundingBox (https://lua-api.factorio.com/latest/Concepts.html#BoundingBox), tileName must be a tile name prototype
     local tiles = {}
 
@@ -146,6 +142,12 @@ function Generation.createBorder(center, width, height)  -- ness - creates a bor
     end
 
     game.surfaces[global.gameSurface].set_tiles(tiles)
+end
+
+function Generation.addLinkedChest(force, number)
+    local surface = game.surfaces[global.gameSurface]
+    surface.create_entity{name = "teleporter", position = {xCenter - 40 * factor, yCenter}, force = "player"}
+    global.boxs[force]
 end
 
 return Generation
