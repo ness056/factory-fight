@@ -34,6 +34,9 @@ function Utils.removeByValue(array, value)  -- ness - removes the first element 
 end
 
 function Utils.getValidPosition(pos, radius)    -- ness - returns the closest non colliding position for a character
+    if not radius then
+        radius = 0
+    end
     return game.surfaces[global.gameSurface].find_non_colliding_position("character", pos, radius, 0.01)
 end
 
@@ -56,8 +59,16 @@ function Utils.getSideFactor(team)
     elseif team == "spec" then return 0 end
 end
 
+function Utils.getTeamFromForce(force)
+    return Utils.splitString(force, "~")[1]
+end
+
 function Utils.getGameTimer()
-    return game.tick - global.gameStratingTick
+    if global.isGameRunning then
+        return game.tick - global.gameStratingTick
+    else
+        return global.gameEndingTick - global.gameStratingTick
+    end
 end
 
 function Utils.getGameTimerInSMinH()
@@ -66,6 +77,25 @@ function Utils.getGameTimerInSMinH()
     local min = math.floor(gameTimer / 3600 % 60)
     local h = math.floor(gameTimer / 216000)
     return {s = s, min = min, h = h}
+end
+
+function Utils.ceilNthDecimal(x, n)
+    local n_ = 10 ^ n
+    return math.ceil(x * n_) / n_
+end
+
+function Utils.getResetTimer()
+    if global.gameEndingTick == -1 then
+        return math.huge
+    else
+        return global.gameEndingTick - game.tick + 3600
+    end
+end
+
+function Utils.resetGlobalTable(name)
+    for k, v in pairs(global[name]) do
+        global[name][k] = nil
+    end
 end
 
 return Utils

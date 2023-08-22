@@ -6,10 +6,15 @@ function Global.init()              -- ness - define all global variables
     global.blueBoxN = 0             -- ness - number of player box which were created in the blue side
     global.redPlayers = {}          -- ness - red team player list (red team is on the right)
     global.redBoxN = 0              -- ness - number of player box which were created in the red side
-    global.boxs = {}                -- ness - a table with k = player name and v = box center
+    global.boxs = {}                --[[ ness - a table with k = force name and v = {center = box center, 
+                                    pendingIncome = pending income {iron, copper, coal, stone, oil},
+                                    incomePercentage = how many percentage of the income goes where {iron, copper, coal, stone, oil}}]]
     global.specPlayers = {}         -- ness - list of spectators
-    global.gameStarted = false      -- ness - set to true when game starts
+    global.isGameRunning = false
     global.gameStratingTick = -1    -- ness - egals to -1 if the game is not started
+    global.gameEndingTick = -1      -- ness - egals to -1 if no game has been played yet
+    global.winner = ""              -- ness - winner of the last game ("blue" or "red"). "" if it's the first match of the save
+    global.forceMapReset = false    -- ness - used in force-map-reset command
 end
 
 return Global

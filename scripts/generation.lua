@@ -87,14 +87,15 @@ end
 function Generation.createPlayerBox(player, team)     -- ness - player must be a LuaPlayer
     local factor = Utils.getSideFactor(team)
     if factor == 0 then return end
+    local surface = game.surfaces[global.gameSurface]
 
     local n = math.ceil((global[team .. "BoxN"] % Config.generation.playerNBoxPerLine) / 2)
     local d = math.floor(global[team .. "BoxN"] / Config.generation.playerNBoxPerLine)
     local xCenter = (Config.generation.spawnerZoneDistanceFromCenterX + Config.generation.spawnerZoneMaxWidth + Config.generation.playerBoxMaxWidth / 2 + Config.generation.bordersWidth + 1 + (Config.generation.bordersWidth + Config.generation.playerBoxMaxWidth) * d) * factor
     local yCenter = (-1) ^ global[team .. "BoxN"] * (Config.generation.playerBoxMaxHeight + Config.generation.bordersWidth) * n + ((Config.generation.playerNBoxPerLine + 1) % 2 * Config.generation.playerBoxMaxHeight / 2)
 
-    game.surfaces[global.gameSurface].request_to_generate_chunks({xCenter, yCenter}, math.ceil(math.max(Config.generation.playerBoxMaxWidth, Config.generation.playerBoxMaxHeight) / 64))
-    game.surfaces[global.gameSurface].force_generate_chunk_requests()
+    surface.request_to_generate_chunks({xCenter, yCenter}, math.ceil(math.max(Config.generation.playerBoxMaxWidth, Config.generation.playerBoxMaxHeight) / 64))
+    surface.force_generate_chunk_requests()
 
     global[team .. "BoxN"] = global[team .. "BoxN"] + 1
 
@@ -106,11 +107,28 @@ function Generation.createPlayerBox(player, team)     -- ness - player must be a
     Generation.setTilesArea(area, "landfill")
     Generation.createBorder({xCenter, yCenter}, Config.generation.playerBoxMaxWidth, Config.generation.playerBoxMaxHeight)
 
-    local teleporter = game.surfaces[global.gameSurface].create_entity{name = "teleporter", position = {xCenter - 40 * factor, yCenter}, force = "player"}
+    local teleporter = surface.create_entity{name = "teleporter", position = {xCenter - 40 * factor, yCenter}, force = "player"}
     teleporter.destructible = false
 
-    global.boxs[team .. "~" .. player.name] = {xCenter, yCenter}
-    player.teleport({xCenter - 33 * factor, yCenter})
+    local x = xCenter + (Config.generation.playerBoxWidth / 2 - 1) * factor
+    for i = 0, 4, 1 do
+        local y = yCenter + (-1) ^ i * math.ceil(i / 2) * 10
+        surface.create_entity{name = "linked-chest-blocker", position = {x, y}, force = "player"}
+    end
+
+    local x_ = x + (Config.generation.playerBoxMaxWidth - Config.generation.playerBoxWidth + 8) / 4 * factor
+    Generation.setTilesArea({{x_ - 1, yCenter - 1}, {x_ + 1, yCenter + 1}}, "landfill")
+    local tank = surface.create_entity{name = "giant-storage-tank", position = {x_, yCenter}, force = "player"}
+    tank.destructible = false
+    tank.minable = false
+    tank.rotatable = false
+
+    global.boxs[team .. "~" .. player.name] = {
+        center = {xCenter, yCenter},
+        pendingIncome = {iron = 0, copper = 0, coal = 0, stone = 0, oil = 0},
+        incomePercentage = {iron = .2, copper = .2, coal = .2, stone = .2, oil = .2},
+    }
+    player.teleport(Utils.getValidPosition({xCenter - 33 * factor, yCenter}))
 end
 
 function Generation.setTilesArea(area, tileName)    -- ness - area must be a boundingBox (https://lua-api.factorio.com/latest/Concepts.html#BoundingBox), tileName must be a tile name prototype
@@ -144,10 +162,24 @@ function Generation.createBorder(center, width, height)  -- ness - creates a bor
     game.surfaces[global.gameSurface].set_tiles(tiles)
 end
 
-function Generation.addLinkedChest(force, number)
+function Generation.addLinkedChest(force, number)   -- ness - force must be a force name
     local surface = game.surfaces[global.gameSurface]
-    surface.create_entity{name = "teleporter", position = {xCenter - 40 * factor, yCenter}, force = "player"}
-    global.boxs[force]
+    local team = Utils.getTeamFromForce(force)
+    local factor = Utils.getSideFactor(team)
+    local box = global.boxs[force].center
+
+    local x = box[1] + (Config.generation.playerBoxWidth / 2 - 0.5) * factor + (factor - 1) / -2
+    local y = box[2] + (-1) ^ number * math.ceil(number / 2) * 10 + 0.5
+    local chest = surface.create_entity{name = "linked-chest", position = {x, y}, force = force}
+
+    chest.destructible = false
+    chest.minable = false
+    chest.rotatable = false
+
+    chest.link_id = game.forces[force].index
+
+    local blocker = surface.find_entity("linked-chest-blocker", {x, y})
+    blocker.destroy()
 end
 
 return Generation

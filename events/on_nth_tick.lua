@@ -37,16 +37,25 @@ return {
 
     {
         f = function (event)
-            Gui.refreshAllGui()
+            Gui.updateAllGui()
 
-            if global.gameStarted == false then return end
+            Game.checkReset()
+
+            if global.forceMapReset then
+                Game.gameEnd("draw")
+                Game.init()
+
+                global.forceMapReset = false
+            end
+
+            if global.isGameRunning == false then return end
 
             for k, player in pairs(global.bluePlayers) do
-                Player.income("blue", player, 1)
+                Player.income(game.players[player], 1)
             end
 
             for k, player in pairs(global.redPlayers) do
-                Player.income("red", player, 1)
+                Player.income(game.players[player], 1)
             end
         end,
         delay = 60

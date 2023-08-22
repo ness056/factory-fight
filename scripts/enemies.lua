@@ -19,4 +19,12 @@ function Enemies.setBiterCommand(biter, spawner)
     }}
 end
 
+function Enemies.freezeAllBiters()
+    local biters = game.surfaces[global.gameSurface].find_entities_filtered{type = {"unit-spawner", "unit"}}
+
+    for key, biter in pairs(biters) do
+        biter.active = false
+    end
+end
+
 return Enemies

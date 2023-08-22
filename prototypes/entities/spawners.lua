@@ -284,7 +284,7 @@ local function create_spawner_size(typeName, size, scale)
             result_units = {{ size .. "-" .. typeName_ .. "biter", {{ 0.0, 1 }}}},
             -- With zero evolution the spawn rate is 6 seconds, with max evolution it is 2.5 seconds
             spawning_cooldown = { 360, 150 },
-            spawning_radius = 10,
+            spawning_radius = 0,
             spawning_spacing = 3,
             max_spawn_shift = 0,
             max_richness_for_spawn_shift = 100,
@@ -446,7 +446,7 @@ local function create_spawner_size(typeName, size, scale)
             result_units = {{ size .. "-" .. typeName_ .. "spitter", {{ 0.0, 1 }}}},
             -- With zero evolution the spawn rate is 6 seconds, with max evolution it is 2.5 seconds
             spawning_cooldown = { 360, 360 },
-            spawning_radius = 10,
+            spawning_radius = 0,
             spawning_spacing = 3,
             max_spawn_shift = 0,
             max_richness_for_spawn_shift = 100,

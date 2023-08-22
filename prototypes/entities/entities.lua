@@ -78,5 +78,24 @@ data:extend{
                 }
             }
         }
+    },
+
+    {
+        type = "simple-entity-with-owner",
+        name = "linked-chest-blocker",
+        flags = { "not-rotatable", "not-deconstructable", "not-flammable", "not-blueprintable", "not-selectable-in-game" },
+        picture = {
+            filename = "__base__/graphics/terrain/lab-tiles/lab-dark-2.png",
+            size = 32
+        },
+        collision_box = { { -0.49, -0.49 }, { 0.49, 0.49 } },
+        selection_box = { { -0.5, -0.5 }, { 0.5, 0.5 } }
     }
 }
+
+local giantStorageTank = table.deepcopy(data.raw["storage-tank"]["storage-tank"])
+giantStorageTank.name = "giant-storage-tank"
+giantStorageTank.fluid_box.base_area = 10000
+giantStorageTank.flags = { "not-rotatable", "not-deconstructable", "not-flammable", "not-blueprintable", "not-selectable-in-game" }
+
+data:extend{giantStorageTank}

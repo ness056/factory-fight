@@ -16,6 +16,7 @@ return {
         bordersWidth = 15                       -- ness - width of the void borders which separate differents zones (like the spawner zones or the boxs)
     },
     income = {
+        oilIncomeMult = 100,
         smallValue = 10,
         mediumValue = 40,
         bigValue = 150,
