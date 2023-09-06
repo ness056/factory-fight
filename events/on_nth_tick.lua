@@ -15,22 +15,24 @@ return {
                 {x = x2, y = y}
             }
             local redArea = {
-                {x = x2 * -1, y = -y},
+                {x = -x2, y = -y},
                 {x = x1Red, y = y}
             }
             local specArea = {
                 {x = blueArea[1].x, y = -y},
                 {x = redArea[2].x, y = y}
             }
-            game.forces["blueSilo"].chart(game.surfaces[global.gameSurface], blueArea)
-            game.forces["redSilo"].chart(game.surfaces[global.gameSurface], redArea)
+            if global.blueSpyingEnd < game.tick then
+                game.forces["blueSilo"].chart(game.surfaces[global.gameSurface], blueArea)
+            else
+                game.forces["blueSilo"].chart(game.surfaces[global.gameSurface], specArea)
+            end
+            if global.redSpyingEnd < game.tick then
+                game.forces["redSilo"].chart(game.surfaces[global.gameSurface], redArea)
+            else
+                game.forces["redSilo"].chart(game.surfaces[global.gameSurface], specArea)
+            end
             game.forces["player"].chart(game.surfaces[global.gameSurface], specArea)
-
-            --[[---------
-            local x = Config.generation.spawnerZoneMaxWidth + Config.generation.spawnerZoneDistanceFromCenterX + 96
-            local y = math.max(Config.generation.spawnerZoneMaxHeight / 2, (Config.generation.playerBoxMaxHeight + Config.generation.bordersWidth) * Config.generation.playerNBoxPerLine / 2) + 96
-            game.forces["blueSilo"].chart(game.surfaces[global.gameSurface], {{-x, -y}, {x, y}})
-            game.forces["redSilo"].chart(game.surfaces[global.gameSurface], {{-x, -y}, {x, y}})]]
         end,
         delay = 100
     },

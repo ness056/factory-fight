@@ -12,9 +12,11 @@ function Global.init()              -- ness - define all global variables
     global.specPlayers = {}         -- ness - list of spectators
     global.isGameRunning = false
     global.gameStratingTick = -1    -- ness - egals to -1 if the game is not started
-    global.gameEndingTick = -1      -- ness - egals to -1 if no game has been played yet
+    global.gameEndingTick = -1      -- ness - egals to -1 if the game is not finished
     global.winner = ""              -- ness - winner of the last game ("blue" or "red"). "" if it's the first match of the save
     global.forceMapReset = false    -- ness - used in force-map-reset command
+    global.blueSpyingEnd = 0        -- ness - blue can spy red if this < game.tick
+    global.redSpyingEnd = 0         -- ness - red can spy blue if this < game.tick
 end
 
 return Global

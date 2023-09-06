@@ -3,7 +3,8 @@ local Utils = require("__factory-fight__.scripts.utils")
 
 local Generation = {}
 
-function Generation.deleteNauvis() -- ness - just a function to delete and disable all chunks in nauvis
+---deletes and disables all chunks in nauvis (the default surface)
+function Generation.deleteNauvis()
     local nauvis = game.surfaces[1]
     local map_gen_settings = nauvis.map_gen_settings
     map_gen_settings.height = 3
@@ -15,6 +16,7 @@ function Generation.deleteNauvis() -- ness - just a function to delete and disab
 end
 
 function Generation.newGameSurface()
+    --create a new game surface [[
     game.map_settings.pollution.enabled = false
     game.map_settings.enemy_evolution.enabled = false
     game.map_settings.enemy_expansion.enabled = false
@@ -45,6 +47,7 @@ function Generation.newGameSurface()
     }
 
     local surface = game.create_surface(global.gameSurface, mapGenSettings)
+    --]]
 
     local blueSZCenter = {-Config.generation.spawnerZoneDistanceFromCenterX - Config.generation.spawnerZoneWidth / 2, 0}
     local redSZCenter = {-blueSZCenter[1], 0}
@@ -74,6 +77,7 @@ function Generation.newGameSurface()
     redTp.destructible = false
 end
 
+---loop over all the players to create thier island, called when the game is starting
 function Generation.onGameStarting()
     for k, playerName in pairs(global.bluePlayers) do
         Generation.createPlayerBox(game.players[playerName], "blue")
@@ -84,7 +88,10 @@ function Generation.onGameStarting()
     end
 end
 
-function Generation.createPlayerBox(player, team)     -- ness - player must be a LuaPlayer
+---creates player's island and its teleport, its oil tank and its first linked chest
+---@param player LuaPlayer @https://lua-api.factorio.com/latest/classes/LuaPlayer.html
+---@param team "blue"|"red"
+function Generation.createPlayerBox(player, team)
     local factor = Utils.getSideFactor(team)
     if factor == 0 then return end
     local surface = game.surfaces[global.gameSurface]
@@ -131,7 +138,9 @@ function Generation.createPlayerBox(player, team)     -- ness - player must be a
     player.teleport(Utils.getValidPosition({xCenter - 33 * factor, yCenter}))
 end
 
-function Generation.setTilesArea(area, tileName)    -- ness - area must be a boundingBox (https://lua-api.factorio.com/latest/Concepts.html#BoundingBox), tileName must be a tile name prototype
+---@param area BoundingBox @https://lua-api.factorio.com/latest/Concepts.html#BoundingBox
+---@param tileName string @tile's prototype name
+function Generation.setTilesArea(area, tileName)
     local tiles = {}
 
     for x = 0, area[2][1] - area[1][1], 1 do
@@ -143,7 +152,12 @@ function Generation.setTilesArea(area, tileName)    -- ness - area must be a bou
     game.surfaces[global.gameSurface].set_tiles(tiles)
 end
 
-function Generation.createBorder(center, width, height)  -- ness - creates a border of void around zones (like boxs and spawner zones), center must be a map position, width and height is the size of the side of the inner square of the border
+
+---creates a border of void around zones (like boxs and spawner zones), center must be a map position, width and height is the size of the side of the inner square of the border
+---@param center MapPosition @https://lua-api.factorio.com/latest/concepts.html#MapPosition
+---@param width number
+---@param height number
+function Generation.createBorder(center, width, height)
     local tiles = {}
 
     for x = 0, width + Config.generation.bordersWidth * 2, 1 do
@@ -162,7 +176,10 @@ function Generation.createBorder(center, width, height)  -- ness - creates a bor
     game.surfaces[global.gameSurface].set_tiles(tiles)
 end
 
-function Generation.addLinkedChest(force, number)   -- ness - force must be a force name
+---generates a new linked chest
+---@param force string @force name
+---@param number number @how manyth chest is it
+function Generation.addLinkedChest(force, number)
     local surface = game.surfaces[global.gameSurface]
     local team = Utils.getTeamFromForce(force)
     local factor = Utils.getSideFactor(team)

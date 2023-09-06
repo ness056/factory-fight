@@ -53,6 +53,7 @@ function Game.init()
     end
 end
 
+---called when the game is starting
 function Game.start()
     Generation.onGameStarting()
     Teams.onGameStarting()
@@ -61,6 +62,9 @@ function Game.start()
     global.gameStratingTick = game.tick
 end
 
+---called when one silo dies or on a draw
+---@param winner "blue"|"red"
+---@param silo LuaEntity? @the silo which has died or nil if draw https://lua-api.factorio.com/latest/classes/LuaPlayer.html
 function Game.gameEnd(winner, silo)
     Enemies.freezeAllBiters()
 
@@ -68,19 +72,24 @@ function Game.gameEnd(winner, silo)
     global.winner = winner
     global.isGameRunning = false
 
-    local pos = silo.position
-    game.surfaces[global.gameSurface].create_entity({
-        name = "atomic-rocket",
-        position = pos,
-        source = pos,
-        target = pos,
-        max_range = 1,
-        speed = 0.1
-    })
+    -- create a fancy explosion where the silo was
+    if silo then
+        local pos = silo.position
+        game.surfaces[global.gameSurface].create_entity({
+            name = "atomic-rocket",
+            position = pos,
+            source = pos,
+            target = pos,
+            max_range = 1,
+            speed = 0.1
+        })
+    end
+
 
     game.play_sound{path = "gg-sound"}
 end
 
+---resets the map when the game is finished to start a new one, called every second
 function Game.checkReset()
     if Utils.getResetTimer() < 0 and global.gameEndingTick ~= -1 and global.gameEndingTick then
         Game.init()

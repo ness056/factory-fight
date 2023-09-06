@@ -1,9 +1,15 @@
 Utils = {}
 
+---print a message in red
+---@param err string
 function Utils.error(err)
     game.print(err, {r = 1, b = 0, g = 0, a = 1})
 end
 
+---splits the given string in an array of strings
+---@param inputstr string
+---@param sep string
+---@return table
 function Utils.splitString(inputstr, sep)
     if sep == nil then
        sep = "%s"
@@ -15,7 +21,11 @@ function Utils.splitString(inputstr, sep)
     return t
 end
 
-function Utils.indexOf(array, value)    -- ness - returns the index of the first element which is egal to value. returns nil if no element is egal to value
+---returns the index of the first element which is egal to value. returns nil if no element is egal to values
+---@param array array
+---@param value any
+---@return number|nil
+function Utils.indexOf(array, value)
     for k, v in pairs(array) do
         if v == value then
             return k
@@ -24,7 +34,11 @@ function Utils.indexOf(array, value)    -- ness - returns the index of the first
     return nil
 end
 
-function Utils.removeByValue(array, value)  -- ness - removes the first element which is egal to value and returns its index. does nothing if no element is egal to value and returns nil
+---removes the first element which is egal to value and returns its index. does nothing if no element is egal to value and returns nil
+---@param array array
+---@param value any
+---@return number|nil
+function Utils.removeByValue(array, value)
     local index = Utils.indexOf(array, value)
     if index == nil then
         return nil
@@ -33,13 +47,20 @@ function Utils.removeByValue(array, value)  -- ness - removes the first element 
     return index
 end
 
-function Utils.getValidPosition(pos, radius)    -- ness - returns the closest non colliding position for a character
+---returns the closest non colliding position for a character, returns nil if no such position has been found
+---@param pos MapPosition @https://lua-api.factorio.com/latest/concepts.html#MapPosition
+---@param radius number
+---@return MapPosition|nil @https://lua-api.factorio.com/latest/concepts.html#MapPosition
+function Utils.getValidPosition(pos, radius)
     if not radius then
         radius = 0
     end
     return game.surfaces[global.gameSurface].find_non_colliding_position("character", pos, radius, 0.01)
 end
 
+---converts an array to a string, only used for debuging, since lua does not allow to print array
+---@param o array
+---@return string
 function Utils.dump(o)
     if type(o) == 'table' then
         local s = '{ '
@@ -53,16 +74,24 @@ function Utils.dump(o)
     end
 end
 
+---used to transform a MapPosition to avoid useless calculation
+---@param team "blue"|"red"|"spec"
+---@return integer
 function Utils.getSideFactor(team)
     if team == "blue" then return -1
     elseif team == "red" then return 1
-    elseif team == "spec" then return 0 end
+    else return 0 end
 end
 
+---force name format: "<force's player name>~<team name>", returns only the team name
+---@param force string @force name
+---@return string
 function Utils.getTeamFromForce(force)
     return Utils.splitString(force, "~")[1]
 end
 
+---returns the game timer in ticks if is game is running, returns how long the last game has lasted in tick if the game is finished (1 tick = 1s/60)
+---@return number
 function Utils.getGameTimer()
     if global.isGameRunning then
         return game.tick - global.gameStratingTick
@@ -71,6 +100,8 @@ function Utils.getGameTimer()
     end
 end
 
+---returns the game timer in s/min/h if is game is running, returns how long the last game has lasted in s/min/h if the game is finished (1 tick = 1s/60)
+---@return table
 function Utils.getGameTimerInSMinH()
     local gameTimer = Utils.getGameTimer()
     local s = math.floor(gameTimer / 60 % 60)
@@ -79,11 +110,16 @@ function Utils.getGameTimerInSMinH()
     return {s = s, min = min, h = h}
 end
 
+---ceil x to the nth decimal
+---@param x number
+---@param n number
+---@return number
 function Utils.ceilNthDecimal(x, n)
     local n_ = 10 ^ n
     return math.ceil(x * n_) / n_
 end
 
+---@return number
 function Utils.getResetTimer()
     if global.gameEndingTick == -1 then
         return math.huge
@@ -92,6 +128,8 @@ function Utils.getResetTimer()
     end
 end
 
+---clears all global tables content
+---@param name any
 function Utils.resetGlobalTable(name)
     for k, v in pairs(global[name]) do
         global[name][k] = nil

@@ -3,7 +3,10 @@ local Utils = require("__factory-fight__.scripts.utils")
 
 local Player = {}
 
-function Player.getTeamOfPlayer(player)      -- ness - returns the team of the player, player must be a LuaPlayer
+---returns the given player's team, returns nil if they are not in any team
+---@param player LuaPlayer @https://lua-api.factorio.com/latest/classes/LuaPlayer.html
+---@return string|nil
+function Player.getTeamOfPlayer(player)
     if Utils.indexOf(global.specPlayers, player.name) then
         return "spec"
     elseif Utils.indexOf(global.bluePlayers, player.name) then
@@ -15,7 +18,9 @@ function Player.getTeamOfPlayer(player)      -- ness - returns the team of the p
     end
 end
 
-function Player.checkTeleporter(player)     -- ness - check if the player is on a teleporter, and if so, it teleports him, player must be a LuaPlayer
+---checks if the given player touches a teleporter, teleports them to the teleporter's destination if yes
+---@param player LuaPlayer @https://lua-api.factorio.com/latest/classes/LuaPlayer.html
+function Player.checkTeleporter(player)
     local team = Player.getTeamOfPlayer(player)
     if not (team == "blue" or team == "red") or not global.isGameRunning then return end
 
@@ -36,6 +41,8 @@ function Player.checkTeleporter(player)     -- ness - check if the player is on 
     end
 end
 
+---checks if the given player touches the bitter path invisible wall, teleports them back if yes
+---@param player LuaPlayer @https://lua-api.factorio.com/latest/classes/LuaPlayer.html
 function Player.checkBitterPathBarrier(player)
     local team = Player.getTeamOfPlayer(player)
     if not (team == "blue" or team == "red") or not global.isGameRunning then return end
@@ -52,6 +59,9 @@ function Player.checkBitterPathBarrier(player)
     end
 end
 
+---inserts resources in the given player's linked chests based on their income, called every seconds
+---@param player LuaPlayer @https://lua-api.factorio.com/latest/classes/LuaPlayer.html
+---@param time number @time in second since the last income cycle
 function Player.income(player, time)
     local surface = game.surfaces[global.gameSurface]
     local team = Player.getTeamOfPlayer(player)
@@ -89,7 +99,11 @@ function Player.income(player, time)
     if oilIncome > 0 then tank.insert_fluid({name="crude-oil", amount = oilIncome * Config.income.oilIncomeMult}) end
 end
 
-function Player.getIncome(player, time)     -- ness - player must be a LuaPlayer
+---calcutates the income the given player
+---@param player LuaPlayer @https://lua-api.factorio.com/latest/classes/LuaPlayer.html
+---@param time number @time in second since the last income cycle
+---@return number @income
+function Player.getIncome(player, time)
     local surface = game.surfaces[global.gameSurface]
     local team = Player.getTeamOfPlayer(player)
     local factor = Utils.getSideFactor(team)
@@ -113,7 +127,11 @@ function Player.getIncome(player, time)     -- ness - player must be a LuaPlayer
     return income
 end
 
-function Player.deleteEntity (entity, player, msg)
+---called by Player.on_built_entity to destroy an entity and give the item backer_name
+---@param entity LuaEntity @https://lua-api.factorio.com/latest/classes/LuaEntity.html
+---@param player LuaPlayer @https://lua-api.factorio.com/latest/classes/LuaPlayer.html
+---@param msg string|LocalisedString @https://lua-api.factorio.com/latest/concepts.html#LocalisedString
+function Player.deleteEntity(entity, player, msg)
     local stack = player.cursor_stack
     if stack.count == 0 then
         player.get_main_inventory().insert({name = entity.name, count = 1})
@@ -126,6 +144,8 @@ function Player.deleteEntity (entity, player, msg)
     entity.destroy()
 end
 
+---called on event on_built_entity, check if the placed entity can be placed there, destroys it if not
+---@param event table @https://lua-api.factorio.com/latest/events.html#on_built_entity
 function Player.on_built_entity(event)
     local entity = event.created_entity
     local player = game.players[event.player_index]
@@ -160,6 +180,11 @@ function Player.on_built_entity(event)
 
         entity.rotatable = false
     end
+end
+
+---TODO
+function Player.createPlayerCharacters(player)
+
 end
 
 return Player

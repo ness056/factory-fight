@@ -4,6 +4,7 @@ local Player = require("__factory-fight__.scripts.player")
 
 local Teams = {}
 
+---creates silos forces and set them friend with spectators' force
 function Teams.init()
     local blueSilo = game.create_force("blueSilo")
     blueSilo.share_chart = true
@@ -18,7 +19,10 @@ function Teams.init()
     game.forces["player"].disable_research()
 end
 
-function Teams.changeTeam(player, newTeam)  -- ness - changes the team of a player, player must be a LuaPlayer and newTeam must be "spec", "blue" or "red"
+---change the given player's team
+---@param player LuaPlayer @https://lua-api.factorio.com/latest/classes/LuaPlayer.html
+---@param newTeam "blue"|"red"|"spec"
+function Teams.changeTeam(player, newTeam)
     if Player.getTeamOfPlayer(player) == newTeam then return end
 
     if newTeam == "spec" then
@@ -58,7 +62,8 @@ function Teams.changeTeam(player, newTeam)  -- ness - changes the team of a play
     player.force = "player"
 end
 
-function Teams.onGameStarting()     -- ness - create pending forces
+---loop over all the players to create thier force, called when the game is starting
+function Teams.onGameStarting()
     for k, playerName in pairs(global.bluePlayers) do
         local player = game.players[playerName]
         local force = Teams.createPlayerForce(player)
@@ -72,7 +77,10 @@ function Teams.onGameStarting()     -- ness - create pending forces
     end
 end
 
-function Teams.createPlayerForce(player)    --ness - player must be a LuaPlayer. returns the new force name
+---creates the given player's force and set it friend with spectators' team and all their allies' forces
+---@param player LuaPlayer @https://lua-api.factorio.com/latest/classes/LuaPlayer.html
+---@return LuaForce @https://lua-api.factorio.com/latest/classes/LuaForce.html
+function Teams.createPlayerForce(player)
     local team = Player.getTeamOfPlayer(player)
 
     local force = game.create_force(team .. "~" .. player.name)
