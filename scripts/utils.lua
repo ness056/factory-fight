@@ -129,7 +129,7 @@ function Utils.getResetTimer()
 end
 
 ---clears all global tables content
----@param name any
+---@param name string|number
 function Utils.resetGlobalTable(name)
     for k, v in pairs(global[name]) do
         global[name][k] = nil
