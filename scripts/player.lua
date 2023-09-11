@@ -99,7 +99,7 @@ function Player.income(player, time)
     if oilIncome > 0 then tank.insert_fluid({name="crude-oil", amount = oilIncome * Config.income.oilIncomeMult}) end
 end
 
----calcutates the income the given player
+---calcutates the income of the given player
 ---@param player LuaPlayer @https://lua-api.factorio.com/latest/classes/LuaPlayer.html
 ---@param time number @time in second since the last income cycle
 ---@return number @income
@@ -182,9 +182,117 @@ function Player.on_built_entity(event)
     end
 end
 
----TODO
-function Player.createPlayerCharacters(player)
+---creates 10 inventories:
+---
+---1st is blue main inventory (120 stacks),
+---2nd is blue guns inventory (3 stacks),
+---3rd is blue ammo inventory (3 stacks),
+---4th is blue armor inventory (1 stack),
+---5th is blue trash inventory (30 stacks)
+---
+---6th is red main inventory (120 stacks),
+---7th is red guns inventory (3 stacks),
+---8th is red ammo inventory (3 stacks),
+---9th is red armor inventory (1 stack),
+---10th is red trash inventory (30 stacks)
+---
+---called every time a new player joins the game
+---@param player LuaPlayer @https://lua-api.factorio.com/latest/classes/LuaPlayer.html
+function Player.createPlayerInventories(player)
+    local i = (player.index - 1) * 10
 
+    global.inventories[i + 1] = game.create_inventory(120)
+    global.inventories[i + 2] = game.create_inventory(3)
+    global.inventories[i + 3] = game.create_inventory(3)
+    global.inventories[i + 4] = game.create_inventory(1)
+    global.inventories[i + 5] = game.create_inventory(30)
+
+    global.inventories[i + 6] = game.create_inventory(120)
+    global.inventories[i + 7] = game.create_inventory(3)
+    global.inventories[i + 8] = game.create_inventory(3)
+    global.inventories[i + 9] = game.create_inventory(1)
+    global.inventories[i + 10] = game.create_inventory(30)
+end
+
+---@param player LuaPlayer @https://lua-api.factorio.com/latest/classes/LuaPlayer.html
+---@param team "blue"|"red"
+function Player.savePlayerInventories(player, team)
+    local i = (player.index - 1) * 10
+
+    if team == "blue" then
+        Player.copyInventory(player.get_inventory(defines.inventory.character_armor), global.inventories[i + 4])
+        Player.copyInventory(player.get_inventory(defines.inventory.character_main), global.inventories[i + 1])
+        Player.copyInventory(player.get_inventory(defines.inventory.character_guns), global.inventories[i + 2])
+        Player.copyInventory(player.get_inventory(defines.inventory.character_ammo), global.inventories[i + 3])
+        Player.copyInventory(player.get_inventory(defines.inventory.character_trash), global.inventories[i + 5])
+    elseif team == "red" then
+        Player.copyInventory(player.get_inventory(defines.inventory.character_armor), global.inventories[i + 9])
+        Player.copyInventory(player.get_inventory(defines.inventory.character_main), global.inventories[i + 6])
+        Player.copyInventory(player.get_inventory(defines.inventory.character_guns), global.inventories[i + 7])
+        Player.copyInventory(player.get_inventory(defines.inventory.character_ammo), global.inventories[i + 8])
+        Player.copyInventory(player.get_inventory(defines.inventory.character_trash), global.inventories[i + 10])
+    end
+end
+
+---@param player LuaPlayer @https://lua-api.factorio.com/latest/classes/LuaPlayer.html
+---@param team "blue"|"red"
+function Player.loadPlayerInventories(player, team)
+    local i = (player.index - 1) * 10
+
+    if team == "blue" then
+        Player.copyInventory(global.inventories[i + 4], player.get_inventory(defines.inventory.character_armor))
+        Player.copyInventory(global.inventories[i + 1], player.get_inventory(defines.inventory.character_main))
+        Player.copyInventory(global.inventories[i + 2], player.get_inventory(defines.inventory.character_guns))
+        Player.copyInventory(global.inventories[i + 3], player.get_inventory(defines.inventory.character_ammo))
+        Player.copyInventory(global.inventories[i + 5], player.get_inventory(defines.inventory.character_trash))
+    elseif team == "red" then
+        Player.copyInventory(global.inventories[i + 9], player.get_inventory(defines.inventory.character_armor))
+        Player.copyInventory(global.inventories[i + 6], player.get_inventory(defines.inventory.character_main))
+        Player.copyInventory(global.inventories[i + 7], player.get_inventory(defines.inventory.character_guns))
+        Player.copyInventory(global.inventories[i + 8], player.get_inventory(defines.inventory.character_ammo))
+        Player.copyInventory(global.inventories[i + 10], player.get_inventory(defines.inventory.character_trash))
+    end
+end
+
+---@param srcInventory LuaInventory @https://lua-api.factorio.com/latest/classes/LuaInventory.html
+---@param destInventory LuaInventory @https://lua-api.factorio.com/latest/classes/LuaInventory.html
+function Player.copyInventory(srcInventory, destInventory)
+    destInventory.clear()
+
+    local i = 1
+    while(i <= #srcInventory and i <= #destInventory) do
+        destInventory.insert(srcInventory[i])
+
+        i = i + 1
+    end
+end
+
+---clears given player's inventories (called when player is moved in spec team)
+---@param player LuaPlayer @https://lua-api.factorio.com/latest/classes/LuaPlayer.html
+function Player.clearPlayerInventories(player)
+    player.get_inventory(defines.inventory.character_main).clear()
+    player.get_inventory(defines.inventory.character_guns).clear()
+    player.get_inventory(defines.inventory.character_ammo).clear()
+    player.get_inventory(defines.inventory.character_armor).clear()
+    player.get_inventory(defines.inventory.character_trash).clear()
+end
+
+---clears given player's blue and red inventories (called when game end)
+---@param player LuaPlayer @https://lua-api.factorio.com/latest/classes/LuaPlayer.html
+function Player.clearPlayerSavedInventories(player)
+    local i = (player.index - 1) * 10
+
+    global.inventories[i + 1].clear()
+    global.inventories[i + 2].clear()
+    global.inventories[i + 3].clear()
+    global.inventories[i + 4].clear()
+    global.inventories[i + 5].clear()
+
+    global.inventories[i + 6].clear()
+    global.inventories[i + 7].clear()
+    global.inventories[i + 8].clear()
+    global.inventories[i + 9].clear()
+    global.inventories[i + 10].clear()
 end
 
 return Player

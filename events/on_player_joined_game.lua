@@ -9,6 +9,9 @@ return function (event)
     if Player.getTeamOfPlayer(player) == nil then
         player.teleport(Utils.getValidPosition({0, 0}, Config.generation.specIslandSize), global.gameSurface)
         table.insert(global.specPlayers, player.name)
+        game.permissions.get_group("spec").add_player(player)
+
+        Player.createPlayerInventories(player)
     end
 
     Gui.destroyGui(player)

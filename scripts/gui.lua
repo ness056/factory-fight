@@ -69,7 +69,7 @@ function Gui.createInfoTab(player)
     leftTeam.style.font_color = { r = 0, g = 0, b = 1 }
 
     local leftTeamPlayer = table.concat(global.bluePlayers, ", ")
-    local leftTeamPlayer_ = frame.add { type = "label", name = "info-tab-left-team-player", caption = { "player-list", #global.bluePlayers,
+    local leftTeamPlayer_ = frame.add { type = "label", name = "info-tab-left-team-player", caption = { "info-player-list", #global.bluePlayers,
         leftTeamPlayer } }
 
     local joinBlueButton = frame.add { type = "sprite-button", name = "join-blue-team", caption = { "join" } }
@@ -89,7 +89,7 @@ function Gui.createInfoTab(player)
     rightTeam.style.font_color = { r = 1, g = 0, b = 0 }
 
     local rightTeamPlayer = table.concat(global.redPlayers, ", ")
-    local rightTeamPlayer_ = frame.add { type = "label", name = "info-tab-right-team-player", caption = { "player-list", #global.redPlayers,
+    local rightTeamPlayer_ = frame.add { type = "label", name = "info-tab-right-team-player", caption = { "info-player-list", #global.redPlayers,
         rightTeamPlayer } }
 
     local joinRedButton = frame.add { type = "sprite-button", name = "join-red-team", caption = { "join" } }
@@ -158,7 +158,7 @@ function Gui.updateInfoTab(player)
     player.gui.top["info-tab-frame"]["info-tab-timer"].caption = s
 
     local leftTeamPlayer = table.concat(global.bluePlayers, ", ")
-    player.gui.top["info-tab-frame"]["info-tab-left-team-player"].caption = { "player-list", #global.bluePlayers,
+    player.gui.top["info-tab-frame"]["info-tab-left-team-player"].caption = { "info-player-list", #global.bluePlayers,
         leftTeamPlayer }
 
     if team == "blue" or (not global.isGameRunning and global.winner ~= "") then
@@ -168,7 +168,7 @@ function Gui.updateInfoTab(player)
     end
 
     local rightTeamPlayer = table.concat(global.redPlayers, ", ")
-    player.gui.top["info-tab-frame"]["info-tab-right-team-player"].caption = { "player-list", #global.redPlayers,
+    player.gui.top["info-tab-frame"]["info-tab-right-team-player"].caption = { "info-player-list", #global.redPlayers,
         rightTeamPlayer }
 
     if team == "red" or (not global.isGameRunning and global.winner ~= "") then
@@ -492,8 +492,27 @@ function Gui.createAdminTab(player)
     redBox.style.height = 360
 
     local config = tabbedPane.add{ type = "tab", caption = {"config"} }
-    local configManagerFlow = tabbedPane.add{ type = "flow", direction = "vertical" }
+    local configManagerFlow = tabbedPane.add{ type = "flow", direction = "horizontal" }
     tabbedPane.add_tab(config, configManagerFlow)
+
+    local leftTable = configManagerFlow.add{ type = "table", style = "bordered_table", column_count = 1 }
+    leftTable.style.width = 266
+    local rightTable = configManagerFlow.add{ type = "table", style = "bordered_table", column_count = 1 }
+    rightTable.style.width = 266
+
+    local gameSettings = leftTable.add{ type = "flow", direction = "vertical" }
+
+    gameSettings.add{ type = "label", caption = {"game"}, style = "caption_label" }
+
+    gameSettings.add{ type = "checkbox", state = false, caption = {"auto-game-restart"} }
+
+    local bitersSettings = rightTable.add{ type = "flow", direction = "vertical" }
+
+    bitersSettings.add{ type = "label", caption = {"biters"}, style = "caption_label" }
+
+    local playerList = tabbedPane.add{ type = "tab", caption = {"config-player-list"} }
+    local playerListFlow = tabbedPane.add{ type = "flow", direction = "vertical" }
+    tabbedPane.add_tab(playerList, playerListFlow)
 
 
 

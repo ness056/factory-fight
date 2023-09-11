@@ -17,6 +17,7 @@ function Global.init()              -- ness - define all global variables
     global.forceMapReset = false    -- ness - used in force-map-reset command
     global.blueSpyingEnd = 0        -- ness - blue can spy red if this < game.tick
     global.redSpyingEnd = 0         -- ness - red can spy blue if this < game.tick
+    global.inventories = {}
 end
 
 return Global

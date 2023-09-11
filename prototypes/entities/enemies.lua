@@ -22,9 +22,108 @@ local normal_biter_tint2 = { r = 0.9, g = 0.83, b = 0.54, a = 1 }
 local water_biter_tint2 = { r = 0, g = 0.5, b = 1, a = 1 }
 local fire_biter_tint2 = { r = 1, g = 0, b = 0, a = 1 }
 local plant_biter_tint2 = { r = 0, g = 1, b = 0, a = 1 }
-local rock_biter_tint2 = { r = 0.11, g = 0.44, b = 0.44, a = 1 }
+local rock_biter_tint2 = { r = 0.54, g = 0.27, b = 0.07, a = 1 }
 local elec_biter_tint2 = { r = 1, g = 1, b = 0, a = 1 }
 
+local function addBiterDieAnimation(scale, tint1, tint2, corpse)
+	corpse.animation = biterdieanimation(scale, tint1, tint2)
+	corpse.dying_speed = 0.04
+	corpse.time_before_removed = 5 * 60
+	corpse.time_before_shading_off = 4 * 60
+	corpse.direction_shuffle = { { 1, 2, 3, 16 }, { 4, 5, 6, 7 }, { 8, 9, 10, 11 }, { 12, 13, 14, 15 } }
+	corpse.shuffle_directions_at_frame = 7
+	corpse.final_render_layer = "lower-object-above-shadow"
+
+	corpse.ground_patch_render_layer = "decals" -- "transport-belt-integration"
+	corpse.ground_patch_fade_in_delay = 1 /
+	0.02                                      --  in ticks; 1/dying_speed to delay the animation until dying animation finishes
+	corpse.ground_patch_fade_in_speed = 0.002
+	corpse.ground_patch_fade_out_start = 6 * 60
+	corpse.ground_patch_fade_out_duration = 5 * 60
+
+	local a = 1
+	local d = 0.9
+	corpse.ground_patch =
+	{
+		sheet =
+		{
+			filename = "__base__/graphics/entity/biter/blood-puddle-var-main.png",
+			flags = { "low-object" },
+			line_length = 4,
+			variation_count = 4,
+			frame_count = 1,
+			width = 84,
+			height = 68,
+			shift = util.by_pixel(1, 0),
+			tint = { r = 0.6 * d * a, g = 0.1 * d * a, b = 0.6 * d * a, a = a },
+			scale = scale,
+			hr_version =
+			{
+				filename = "__base__/graphics/entity/biter/hr-blood-puddle-var-main.png",
+				flags = { "low-object" },
+				line_length = 4,
+				variation_count = 4,
+				frame_count = 1,
+				width = 164,
+				height = 134,
+				shift = util.by_pixel(-0.5, -0.5),
+				tint = { r = 0.6 * d * a, g = 0.1 * d * a, b = 0.6 * d * a, a = a },
+				scale = 0.5 * scale
+			}
+		}
+	}
+	return corpse
+end
+
+local function addSpitterDieAnimation(scale, tint1, tint2, corpse)
+	corpse.animation = spitterdyinganimation(scale, tint1, tint2)
+	corpse.dying_speed = 0.04
+	corpse.time_before_removed = 8 * 60
+	corpse.time_before_shading_off = 5 * 60
+	corpse.direction_shuffle = { { 1, 2, 3, 16 }, { 4, 5, 6, 7 }, { 8, 9, 10, 11 }, { 12, 13, 14, 15 } }
+	corpse.shuffle_directions_at_frame = 4
+	corpse.final_render_layer = "lower-object-above-shadow"
+
+	corpse.ground_patch_render_layer = "decals" -- "transport-belt-integration"
+	corpse.ground_patch_fade_in_delay = 1 /
+	0.02                                      --  in ticks; 1/dying_speed to delay the animation until dying animation finishes
+	corpse.ground_patch_fade_in_speed = 0.002
+	corpse.ground_patch_fade_out_start = 6 * 60
+	corpse.ground_patch_fade_out_duration = 5 * 60
+
+	local a = 1
+	local d = 0.9
+	corpse.ground_patch =
+	{
+		sheet =
+		{
+			filename = "__base__/graphics/entity/biter/blood-puddle-var-main.png",
+			flags = { "low-object" },
+			line_length = 4,
+			variation_count = 4,
+			frame_count = 1,
+			width = 84,
+			height = 68,
+			shift = util.by_pixel(1, 0),
+			tint = { r = 0.6 * d * a, g = 0.1 * d * a, b = 0.6 * d * a, a = a },
+			scale = scale,
+			hr_version =
+			{
+				filename = "__base__/graphics/entity/biter/hr-blood-puddle-var-main.png",
+				flags = { "low-object" },
+				line_length = 4,
+				variation_count = 4,
+				frame_count = 1,
+				width = 164,
+				height = 134,
+				shift = util.by_pixel(-0.5, -0.5),
+				tint = { r = 0.6 * d * a, g = 0.1 * d * a, b = 0.6 * d * a, a = a },
+				scale = 0.5 * scale
+			}
+		}
+	}
+	return corpse
+end
 
 data:extend {
 
@@ -467,7 +566,7 @@ data:extend {
 		water_reflection = spitter_water_reflection(scale_spitter_behemoth)
 	},
 
-	add_biter_die_animation(small_biter_scale, small_biter_tint1, normal_biter_tint2,
+	addBiterDieAnimation(small_biter_scale, small_biter_tint1, normal_biter_tint2,
 	{
 	  type = "corpse",
 	  name = "small-biter-corpse",
@@ -480,7 +579,7 @@ data:extend {
 	  flags = {"placeable-neutral", "placeable-off-grid", "building-direction-8-way", "not-repairable", "not-on-map"}
 	}),
 
-	add_biter_die_animation(medium_biter_scale, medium_biter_tint1, normal_biter_tint2,
+	addBiterDieAnimation(medium_biter_scale, medium_biter_tint1, normal_biter_tint2,
 		{
 			type = "corpse",
 			name = "medium-biter-corpse",
@@ -494,7 +593,7 @@ data:extend {
 			flags = { "placeable-neutral", "placeable-off-grid", "building-direction-8-way", "not-on-map" }
 		}),
 
-	add_biter_die_animation(big_biter_scale, big_biter_tint1, normal_biter_tint2,
+	addBiterDieAnimation(big_biter_scale, big_biter_tint1, normal_biter_tint2,
 		{
 			type = "corpse",
 			name = "big-biter-corpse",
@@ -508,7 +607,7 @@ data:extend {
 			flags = { "placeable-neutral", "placeable-off-grid", "building-direction-8-way", "not-on-map" }
 		}),
 
-	add_biter_die_animation(behemoth_biter_scale, behemoth_biter_tint1, normal_biter_tint2,
+	addBiterDieAnimation(behemoth_biter_scale, behemoth_biter_tint1, normal_biter_tint2,
 		{
 			type = "corpse",
 			name = "behemoth-biter-corpse",
@@ -522,7 +621,7 @@ data:extend {
 			flags = { "placeable-neutral", "placeable-off-grid", "building-direction-8-way", "not-on-map" }
 		}),
 
-	add_spitter_die_animation(scale_spitter_small, small_biter_tint1, normal_biter_tint2,
+	addSpitterDieAnimation(scale_spitter_small, small_biter_tint1, normal_biter_tint2,
 		{
 			type = "corpse",
 			name = "small-spitter-corpse",
@@ -536,7 +635,7 @@ data:extend {
 			flags = { "placeable-neutral", "placeable-off-grid", "building-direction-8-way", "not-on-map" }
 		}),
 
-	add_spitter_die_animation(scale_spitter_medium, medium_biter_tint1, normal_biter_tint2,
+	addSpitterDieAnimation(scale_spitter_medium, medium_biter_tint1, normal_biter_tint2,
 		{
 			type = "corpse",
 			name = "medium-spitter-corpse",
@@ -550,7 +649,7 @@ data:extend {
 			flags = { "placeable-neutral", "placeable-off-grid", "building-direction-8-way", "not-on-map" }
 		}),
 
-	add_spitter_die_animation(scale_spitter_big, big_biter_tint1, normal_biter_tint2,
+	addSpitterDieAnimation(scale_spitter_big, big_biter_tint1, normal_biter_tint2,
 		{
 			type = "corpse",
 			name = "big-spitter-corpse",
@@ -564,7 +663,7 @@ data:extend {
 			flags = { "placeable-neutral", "placeable-off-grid", "building-direction-8-way", "not-on-map" }
 		}),
 
-	add_spitter_die_animation(scale_spitter_behemoth, behemoth_biter_tint1, normal_biter_tint2,
+	addSpitterDieAnimation(scale_spitter_behemoth, behemoth_biter_tint1, normal_biter_tint2,
 		{
 			type = "corpse",
 			name = "behemoth-spitter-corpse",
@@ -1017,7 +1116,7 @@ data:extend {
 		water_reflection = spitter_water_reflection(scale_spitter_behemoth)
 	},
 
-	add_biter_die_animation(small_biter_scale, small_biter_tint1, water_biter_tint2,
+	addBiterDieAnimation(small_biter_scale, small_biter_tint1, water_biter_tint2,
 	{
 	  type = "corpse",
 	  name = "small-water-biter-corpse",
@@ -1030,7 +1129,7 @@ data:extend {
 	  flags = {"placeable-neutral", "placeable-off-grid", "building-direction-8-way", "not-repairable", "not-on-map"}
 	}),
 
-	add_biter_die_animation(medium_biter_scale, medium_biter_tint1, water_biter_tint2,
+	addBiterDieAnimation(medium_biter_scale, medium_biter_tint1, water_biter_tint2,
 		{
 			type = "corpse",
 			name = "medium-water-biter-corpse",
@@ -1044,7 +1143,7 @@ data:extend {
 			flags = { "placeable-neutral", "placeable-off-grid", "building-direction-8-way", "not-on-map" }
 		}),
 
-	add_biter_die_animation(big_biter_scale, big_biter_tint1, water_biter_tint2,
+	addBiterDieAnimation(big_biter_scale, big_biter_tint1, water_biter_tint2,
 		{
 			type = "corpse",
 			name = "big-water-biter-corpse",
@@ -1058,7 +1157,7 @@ data:extend {
 			flags = { "placeable-neutral", "placeable-off-grid", "building-direction-8-way", "not-on-map" }
 		}),
 
-	add_biter_die_animation(behemoth_biter_scale, behemoth_biter_tint1, water_biter_tint2,
+	addBiterDieAnimation(behemoth_biter_scale, behemoth_biter_tint1, water_biter_tint2,
 		{
 			type = "corpse",
 			name = "behemoth-water-biter-corpse",
@@ -1072,7 +1171,7 @@ data:extend {
 			flags = { "placeable-neutral", "placeable-off-grid", "building-direction-8-way", "not-on-map" }
 		}),
 
-	add_spitter_die_animation(scale_spitter_small, small_biter_tint1, water_biter_tint2,
+	addSpitterDieAnimation(scale_spitter_small, small_biter_tint1, water_biter_tint2,
 		{
 			type = "corpse",
 			name = "small-water-spitter-corpse",
@@ -1086,7 +1185,7 @@ data:extend {
 			flags = { "placeable-neutral", "placeable-off-grid", "building-direction-8-way", "not-on-map" }
 		}),
 
-	add_spitter_die_animation(scale_spitter_medium, medium_biter_tint1, water_biter_tint2,
+	addSpitterDieAnimation(scale_spitter_medium, medium_biter_tint1, water_biter_tint2,
 		{
 			type = "corpse",
 			name = "medium-water-spitter-corpse",
@@ -1100,7 +1199,7 @@ data:extend {
 			flags = { "placeable-neutral", "placeable-off-grid", "building-direction-8-way", "not-on-map" }
 		}),
 
-	add_spitter_die_animation(scale_spitter_big, big_biter_tint1, water_biter_tint2,
+	addSpitterDieAnimation(scale_spitter_big, big_biter_tint1, water_biter_tint2,
 		{
 			type = "corpse",
 			name = "big-water-spitter-corpse",
@@ -1114,7 +1213,7 @@ data:extend {
 			flags = { "placeable-neutral", "placeable-off-grid", "building-direction-8-way", "not-on-map" }
 		}),
 
-	add_spitter_die_animation(scale_spitter_behemoth, behemoth_biter_tint1, water_biter_tint2,
+	addSpitterDieAnimation(scale_spitter_behemoth, behemoth_biter_tint1, water_biter_tint2,
 		{
 			type = "corpse",
 			name = "behemoth-water-spitter-corpse",
@@ -1567,7 +1666,7 @@ data:extend {
 		water_reflection = spitter_water_reflection(scale_spitter_behemoth)
 	},
 
-	add_biter_die_animation(small_biter_scale, small_biter_tint1, fire_biter_tint2,
+	addBiterDieAnimation(small_biter_scale, small_biter_tint1, fire_biter_tint2,
 	{
 	  type = "corpse",
 	  name = "small-fire-biter-corpse",
@@ -1580,7 +1679,7 @@ data:extend {
 	  flags = {"placeable-neutral", "placeable-off-grid", "building-direction-8-way", "not-repairable", "not-on-map"}
 	}),
 
-	add_biter_die_animation(medium_biter_scale, medium_biter_tint1, fire_biter_tint2,
+	addBiterDieAnimation(medium_biter_scale, medium_biter_tint1, fire_biter_tint2,
 		{
 			type = "corpse",
 			name = "medium-fire-biter-corpse",
@@ -1594,7 +1693,7 @@ data:extend {
 			flags = { "placeable-neutral", "placeable-off-grid", "building-direction-8-way", "not-on-map" }
 		}),
 
-	add_biter_die_animation(big_biter_scale, big_biter_tint1, fire_biter_tint2,
+	addBiterDieAnimation(big_biter_scale, big_biter_tint1, fire_biter_tint2,
 		{
 			type = "corpse",
 			name = "big-fire-biter-corpse",
@@ -1608,7 +1707,7 @@ data:extend {
 			flags = { "placeable-neutral", "placeable-off-grid", "building-direction-8-way", "not-on-map" }
 		}),
 
-	add_biter_die_animation(behemoth_biter_scale, behemoth_biter_tint1, fire_biter_tint2,
+	addBiterDieAnimation(behemoth_biter_scale, behemoth_biter_tint1, fire_biter_tint2,
 		{
 			type = "corpse",
 			name = "behemoth-fire-biter-corpse",
@@ -1622,7 +1721,7 @@ data:extend {
 			flags = { "placeable-neutral", "placeable-off-grid", "building-direction-8-way", "not-on-map" }
 		}),
 
-	add_spitter_die_animation(scale_spitter_small, small_biter_tint1, fire_biter_tint2,
+	addSpitterDieAnimation(scale_spitter_small, small_biter_tint1, fire_biter_tint2,
 		{
 			type = "corpse",
 			name = "small-fire-spitter-corpse",
@@ -1636,7 +1735,7 @@ data:extend {
 			flags = { "placeable-neutral", "placeable-off-grid", "building-direction-8-way", "not-on-map" }
 		}),
 
-	add_spitter_die_animation(scale_spitter_medium, medium_biter_tint1, fire_biter_tint2,
+	addSpitterDieAnimation(scale_spitter_medium, medium_biter_tint1, fire_biter_tint2,
 		{
 			type = "corpse",
 			name = "medium-fire-spitter-corpse",
@@ -1650,7 +1749,7 @@ data:extend {
 			flags = { "placeable-neutral", "placeable-off-grid", "building-direction-8-way", "not-on-map" }
 		}),
 
-	add_spitter_die_animation(scale_spitter_big, big_biter_tint1, fire_biter_tint2,
+	addSpitterDieAnimation(scale_spitter_big, big_biter_tint1, fire_biter_tint2,
 		{
 			type = "corpse",
 			name = "big-fire-spitter-corpse",
@@ -1664,7 +1763,7 @@ data:extend {
 			flags = { "placeable-neutral", "placeable-off-grid", "building-direction-8-way", "not-on-map" }
 		}),
 
-	add_spitter_die_animation(scale_spitter_behemoth, behemoth_biter_tint1, fire_biter_tint2,
+	addSpitterDieAnimation(scale_spitter_behemoth, behemoth_biter_tint1, fire_biter_tint2,
 		{
 			type = "corpse",
 			name = "behemoth-fire-spitter-corpse",
@@ -2117,7 +2216,7 @@ data:extend {
 		water_reflection = spitter_water_reflection(scale_spitter_behemoth)
 	},
 
-	add_biter_die_animation(small_biter_scale, small_biter_tint1, plant_biter_tint2,
+	addBiterDieAnimation(small_biter_scale, small_biter_tint1, plant_biter_tint2,
 	{
 	  type = "corpse",
 	  name = "small-plant-biter-corpse",
@@ -2130,7 +2229,7 @@ data:extend {
 	  flags = {"placeable-neutral", "placeable-off-grid", "building-direction-8-way", "not-repairable", "not-on-map"}
 	}),
 
-	add_biter_die_animation(medium_biter_scale, medium_biter_tint1, plant_biter_tint2,
+	addBiterDieAnimation(medium_biter_scale, medium_biter_tint1, plant_biter_tint2,
 		{
 			type = "corpse",
 			name = "medium-plant-biter-corpse",
@@ -2144,7 +2243,7 @@ data:extend {
 			flags = { "placeable-neutral", "placeable-off-grid", "building-direction-8-way", "not-on-map" }
 		}),
 
-	add_biter_die_animation(big_biter_scale, big_biter_tint1, plant_biter_tint2,
+	addBiterDieAnimation(big_biter_scale, big_biter_tint1, plant_biter_tint2,
 		{
 			type = "corpse",
 			name = "big-plant-biter-corpse",
@@ -2158,7 +2257,7 @@ data:extend {
 			flags = { "placeable-neutral", "placeable-off-grid", "building-direction-8-way", "not-on-map" }
 		}),
 
-	add_biter_die_animation(behemoth_biter_scale, behemoth_biter_tint1, plant_biter_tint2,
+	addBiterDieAnimation(behemoth_biter_scale, behemoth_biter_tint1, plant_biter_tint2,
 		{
 			type = "corpse",
 			name = "behemoth-plant-biter-corpse",
@@ -2172,7 +2271,7 @@ data:extend {
 			flags = { "placeable-neutral", "placeable-off-grid", "building-direction-8-way", "not-on-map" }
 		}),
 
-	add_spitter_die_animation(scale_spitter_small, small_biter_tint1, plant_biter_tint2,
+	addSpitterDieAnimation(scale_spitter_small, small_biter_tint1, plant_biter_tint2,
 		{
 			type = "corpse",
 			name = "small-plant-spitter-corpse",
@@ -2186,7 +2285,7 @@ data:extend {
 			flags = { "placeable-neutral", "placeable-off-grid", "building-direction-8-way", "not-on-map" }
 		}),
 
-	add_spitter_die_animation(scale_spitter_medium, medium_biter_tint1, plant_biter_tint2,
+	addSpitterDieAnimation(scale_spitter_medium, medium_biter_tint1, plant_biter_tint2,
 		{
 			type = "corpse",
 			name = "medium-plant-spitter-corpse",
@@ -2200,7 +2299,7 @@ data:extend {
 			flags = { "placeable-neutral", "placeable-off-grid", "building-direction-8-way", "not-on-map" }
 		}),
 
-	add_spitter_die_animation(scale_spitter_big, big_biter_tint1, plant_biter_tint2,
+	addSpitterDieAnimation(scale_spitter_big, big_biter_tint1, plant_biter_tint2,
 		{
 			type = "corpse",
 			name = "big-plant-spitter-corpse",
@@ -2214,7 +2313,7 @@ data:extend {
 			flags = { "placeable-neutral", "placeable-off-grid", "building-direction-8-way", "not-on-map" }
 		}),
 
-	add_spitter_die_animation(scale_spitter_behemoth, behemoth_biter_tint1, plant_biter_tint2,
+	addSpitterDieAnimation(scale_spitter_behemoth, behemoth_biter_tint1, plant_biter_tint2,
 		{
 			type = "corpse",
 			name = "behemoth-plant-spitter-corpse",
@@ -2667,7 +2766,7 @@ data:extend {
 		water_reflection = spitter_water_reflection(scale_spitter_behemoth)
 	},
 
-	add_biter_die_animation(small_biter_scale, small_biter_tint1, rock_biter_tint2,
+	addBiterDieAnimation(small_biter_scale, small_biter_tint1, rock_biter_tint2,
 	{
 	  type = "corpse",
 	  name = "small-rock-biter-corpse",
@@ -2680,7 +2779,7 @@ data:extend {
 	  flags = {"placeable-neutral", "placeable-off-grid", "building-direction-8-way", "not-repairable", "not-on-map"}
 	}),
 
-	add_biter_die_animation(medium_biter_scale, medium_biter_tint1, rock_biter_tint2,
+	addBiterDieAnimation(medium_biter_scale, medium_biter_tint1, rock_biter_tint2,
 		{
 			type = "corpse",
 			name = "medium-rock-biter-corpse",
@@ -2694,7 +2793,7 @@ data:extend {
 			flags = { "placeable-neutral", "placeable-off-grid", "building-direction-8-way", "not-on-map" }
 		}),
 
-	add_biter_die_animation(big_biter_scale, big_biter_tint1, rock_biter_tint2,
+	addBiterDieAnimation(big_biter_scale, big_biter_tint1, rock_biter_tint2,
 		{
 			type = "corpse",
 			name = "big-rock-biter-corpse",
@@ -2708,7 +2807,7 @@ data:extend {
 			flags = { "placeable-neutral", "placeable-off-grid", "building-direction-8-way", "not-on-map" }
 		}),
 
-	add_biter_die_animation(behemoth_biter_scale, behemoth_biter_tint1, rock_biter_tint2,
+	addBiterDieAnimation(behemoth_biter_scale, behemoth_biter_tint1, rock_biter_tint2,
 		{
 			type = "corpse",
 			name = "behemoth-rock-biter-corpse",
@@ -2722,7 +2821,7 @@ data:extend {
 			flags = { "placeable-neutral", "placeable-off-grid", "building-direction-8-way", "not-on-map" }
 		}),
 
-	add_spitter_die_animation(scale_spitter_small, small_biter_tint1, rock_biter_tint2,
+	addSpitterDieAnimation(scale_spitter_small, small_biter_tint1, rock_biter_tint2,
 		{
 			type = "corpse",
 			name = "small-rock-spitter-corpse",
@@ -2736,7 +2835,7 @@ data:extend {
 			flags = { "placeable-neutral", "placeable-off-grid", "building-direction-8-way", "not-on-map" }
 		}),
 
-	add_spitter_die_animation(scale_spitter_medium, medium_biter_tint1, rock_biter_tint2,
+	addSpitterDieAnimation(scale_spitter_medium, medium_biter_tint1, rock_biter_tint2,
 		{
 			type = "corpse",
 			name = "medium-rock-spitter-corpse",
@@ -2750,7 +2849,7 @@ data:extend {
 			flags = { "placeable-neutral", "placeable-off-grid", "building-direction-8-way", "not-on-map" }
 		}),
 
-	add_spitter_die_animation(scale_spitter_big, big_biter_tint1, rock_biter_tint2,
+	addSpitterDieAnimation(scale_spitter_big, big_biter_tint1, rock_biter_tint2,
 		{
 			type = "corpse",
 			name = "big-rock-spitter-corpse",
@@ -2764,7 +2863,7 @@ data:extend {
 			flags = { "placeable-neutral", "placeable-off-grid", "building-direction-8-way", "not-on-map" }
 		}),
 
-	add_spitter_die_animation(scale_spitter_behemoth, behemoth_biter_tint1, rock_biter_tint2,
+	addSpitterDieAnimation(scale_spitter_behemoth, behemoth_biter_tint1, rock_biter_tint2,
 		{
 			type = "corpse",
 			name = "behemoth-rock-spitter-corpse",
@@ -3217,7 +3316,7 @@ data:extend {
 		water_reflection = spitter_water_reflection(scale_spitter_behemoth)
 	},
 
-	add_biter_die_animation(small_biter_scale, small_biter_tint1, elec_biter_tint2,
+	addBiterDieAnimation(small_biter_scale, small_biter_tint1, elec_biter_tint2,
 	{
 	  type = "corpse",
 	  name = "small-electric-biter-corpse",
@@ -3230,7 +3329,7 @@ data:extend {
 	  flags = {"placeable-neutral", "placeable-off-grid", "building-direction-8-way", "not-repairable", "not-on-map"}
 	}),
 
-	add_biter_die_animation(medium_biter_scale, medium_biter_tint1, elec_biter_tint2,
+	addBiterDieAnimation(medium_biter_scale, medium_biter_tint1, elec_biter_tint2,
 		{
 			type = "corpse",
 			name = "medium-electric-biter-corpse",
@@ -3244,7 +3343,7 @@ data:extend {
 			flags = { "placeable-neutral", "placeable-off-grid", "building-direction-8-way", "not-on-map" }
 		}),
 
-	add_biter_die_animation(big_biter_scale, big_biter_tint1, elec_biter_tint2,
+	addBiterDieAnimation(big_biter_scale, big_biter_tint1, elec_biter_tint2,
 		{
 			type = "corpse",
 			name = "big-electric-biter-corpse",
@@ -3258,7 +3357,7 @@ data:extend {
 			flags = { "placeable-neutral", "placeable-off-grid", "building-direction-8-way", "not-on-map" }
 		}),
 
-	add_biter_die_animation(behemoth_biter_scale, behemoth_biter_tint1, elec_biter_tint2,
+	addBiterDieAnimation(behemoth_biter_scale, behemoth_biter_tint1, elec_biter_tint2,
 		{
 			type = "corpse",
 			name = "behemoth-electric-biter-corpse",
@@ -3272,7 +3371,7 @@ data:extend {
 			flags = { "placeable-neutral", "placeable-off-grid", "building-direction-8-way", "not-on-map" }
 		}),
 
-	add_spitter_die_animation(scale_spitter_small, small_biter_tint1, elec_biter_tint2,
+	addSpitterDieAnimation(scale_spitter_small, small_biter_tint1, elec_biter_tint2,
 		{
 			type = "corpse",
 			name = "small-electric-spitter-corpse",
@@ -3286,7 +3385,7 @@ data:extend {
 			flags = { "placeable-neutral", "placeable-off-grid", "building-direction-8-way", "not-on-map" }
 		}),
 
-	add_spitter_die_animation(scale_spitter_medium, medium_biter_tint1, elec_biter_tint2,
+	addSpitterDieAnimation(scale_spitter_medium, medium_biter_tint1, elec_biter_tint2,
 		{
 			type = "corpse",
 			name = "medium-electric-spitter-corpse",
@@ -3300,7 +3399,7 @@ data:extend {
 			flags = { "placeable-neutral", "placeable-off-grid", "building-direction-8-way", "not-on-map" }
 		}),
 
-	add_spitter_die_animation(scale_spitter_big, big_biter_tint1, elec_biter_tint2,
+	addSpitterDieAnimation(scale_spitter_big, big_biter_tint1, elec_biter_tint2,
 		{
 			type = "corpse",
 			name = "big-electric-spitter-corpse",
@@ -3314,7 +3413,7 @@ data:extend {
 			flags = { "placeable-neutral", "placeable-off-grid", "building-direction-8-way", "not-on-map" }
 		}),
 
-	add_spitter_die_animation(scale_spitter_behemoth, behemoth_biter_tint1, elec_biter_tint2,
+	addSpitterDieAnimation(scale_spitter_behemoth, behemoth_biter_tint1, elec_biter_tint2,
 		{
 			type = "corpse",
 			name = "behemoth-electric-spitter-corpse",

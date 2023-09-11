@@ -3,6 +3,7 @@ local Generation = require("__factory-fight__.scripts.generation")
 local Global = require("__factory-fight__.scripts.global")
 local Enemies = require("__factory-fight__.scripts.enemies")
 local Utils = require("__factory-fight__.scripts.utils")
+local Player = require("__factory-fight__.scripts.player")
 local Config = require "__factory-fight__.config"
 
 Game = {}
@@ -23,11 +24,9 @@ function Game.init()
         for k, player in pairs(game.players) do
             player.teleport(Utils.getValidPosition({0, 0}, Config.generation.specIslandSize), global.gameSurface)
             Teams.changeTeam(player, "spec")
-            player.get_inventory(defines.inventory.character_ammo).clear()
-            player.get_inventory(defines.inventory.character_armor).clear()
-            player.get_inventory(defines.inventory.character_guns).clear()
-            player.get_inventory(defines.inventory.character_main).clear()
-            player.get_inventory(defines.inventory.character_trash).clear()
+
+            Player.clearPlayerSavedInventories(player)
+            Player.clearPlayerInventories(player)
         end
 
         if global.gameSurface == "game0" then
@@ -55,11 +54,11 @@ end
 
 ---called when the game is starting
 function Game.start()
-    Generation.onGameStarting()
-    Teams.onGameStarting()
-
     global.isGameRunning = true
     global.gameStratingTick = game.tick
+
+    Generation.onGameStarting()
+    Teams.onGameStarting()
 end
 
 ---called when one silo dies or on a draw
