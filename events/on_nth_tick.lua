@@ -22,12 +22,12 @@ return {
                 {x = blueArea[1].x, y = -y},
                 {x = redArea[2].x, y = y}
             }
-            if global.blueSpyingEnd < game.tick then
+            if global.blueSpyingEnd < game.tick and global.isGameRunning then
                 game.forces["blueSilo"].chart(game.surfaces[global.gameSurface], blueArea)
             else
                 game.forces["blueSilo"].chart(game.surfaces[global.gameSurface], specArea)
             end
-            if global.redSpyingEnd < game.tick then
+            if global.redSpyingEnd < game.tick and global.isGameRunning then
                 game.forces["redSilo"].chart(game.surfaces[global.gameSurface], redArea)
             else
                 game.forces["redSilo"].chart(game.surfaces[global.gameSurface], specArea)
