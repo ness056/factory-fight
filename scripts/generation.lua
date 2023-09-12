@@ -47,6 +47,8 @@ function Generation.newGameSurface()
     }
 
     local surface = game.create_surface(global.gameSurface, mapGenSettings)
+
+    surface.always_day = true
     --]]
 
     local blueSZCenter = {-Config.generation.spawnerZoneDistanceFromCenterX - Config.generation.spawnerZoneWidth / 2, 0}
