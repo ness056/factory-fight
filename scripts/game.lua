@@ -62,7 +62,7 @@ function Game.start()
 end
 
 ---called when one silo dies or on a draw
----@param winner "blue"|"red"
+---@param winner "blue"|"red"|"draw"
 ---@param silo LuaEntity? @the silo which has died or nil if draw https://lua-api.factorio.com/latest/classes/LuaPlayer.html
 function Game.gameEnd(winner, silo)
     Enemies.freezeAllBiters()
