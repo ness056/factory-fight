@@ -136,4 +136,12 @@ function Utils.resetGlobalTable(name)
     end
 end
 
+function Utils.isKeyDefined(table, key)
+    if table[key] then
+        return true
+    else
+        return false
+    end
+end
+
 return Utils

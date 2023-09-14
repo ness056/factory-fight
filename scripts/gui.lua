@@ -289,43 +289,80 @@ function Gui.createIncomeTab(player)
         oilIncomeValue = Utils.ceilNthDecimal(incomePercentage.oil * 100, 2)
     end
 
-    local table = frame.add{type = "table", name = "income-table", column_count = 3}
-    table.add{ type = "label", name = "total-income", caption = { "total-income", totalIncome } }
-    local infoButton = table.add{ type = "sprite-button", name = "info-income-tab", style = "frame_action_button", sprite = "info_no_border", tooltip = {"info"} }
+    local incomeFlow = frame.add{type = "flow", name = "income-flow", column_count = 3}
+    incomeFlow.add{ type = "label", name = "total-income", caption = { "total-income", totalIncome } }
+    local infoButton = incomeFlow.add{ type = "sprite-button", name = "info-income-tab", style = "frame_action_button", sprite = "info_no_border", tooltip = {"info"} }
     infoButton.style.left_margin = 20
     infoButton.style.width = 25
     infoButton.style.height = 25
-    local closeButton = table.add{ type = "sprite-button", name = "close-income-tab", style = "frame_action_button", sprite = "utility/close_white", clicked_sprite = "utility/close_black", tooltip = {"close"} }
+    local closeButton = incomeFlow.add{ type = "sprite-button", name = "close-income-tab", style = "frame_action_button", sprite = "utility/close_white", clicked_sprite = "utility/close_black", tooltip = {"close"} }
     closeButton.style.width = 25
     closeButton.style.height = 25
     frame.add{ type = "line", direction = "horizontal" }
 
-    local ironTable = frame.add { type = "table", name = "iron-table", column_count = 2 }
-    ironTable.add { type = "sprite", sprite = "item/iron-plate" }
-    ironTable.add { type = "label", name = "iron-income1", caption = { "income", "Iron plate", ironIncome, ironIncomeValue } }
-    frame.add { type = "slider", name = "iron-income2", minimum_value = 0, maximum_value = 100, value = ironIncomeValue }
+    local ironFlow1 = frame.add { type = "flow", name = "iron-flow1", direction = "horizontal" }
+    ironFlow1.style.vertical_align = "center"
+    ironFlow1.add { type = "sprite", sprite = "item/iron-plate" }
+    ironFlow1.add { type = "label", name = "iron-label", caption = { "income", "Iron plate", ironIncome, ironIncomeValue } }
+    local ironFlow2 = frame.add { type = "flow", name = "iron-flow2", direction = "horizontal" }
+    ironFlow2.style.vertical_align = "center"
+    ironFlow2.add { type = "slider", name = "iron-slider", minimum_value = 0, maximum_value = 100, value = ironIncomeValue }
+    local ironTextfield = ironFlow2.add { type = "textfield", name = "iron-income-textfield", numeric = true }
+    ironTextfield.style.height = 18
+    ironTextfield.style.width = 36
+    ironFlow2.add { type = "label", caption = "%" }
 
-    local copperTable = frame.add { type = "table", name = "copper-table", column_count = 2 }
-    copperTable.add { type = "sprite", sprite = "item/copper-plate" }
-    copperTable.add { type = "label", name = "copper-income1", caption = { "income", "Copper plate", copperIncome,
-        copperIncomeValue } }
-    frame.add { type = "slider", name = "copper-income2", minimum_value = 0, maximum_value = 100, value =
-    copperIncomeValue }
+    local copperFlow1 = frame.add { type = "flow", name = "copper-flow1", direction = "horizontal" }
+    copperFlow1.style.vertical_align = "center"
+    copperFlow1.add { type = "sprite", sprite = "item/copper-plate" }
+    copperFlow1.add { type = "label", name = "copper-label", caption = { "income", "Copper plate", copperIncome, copperIncomeValue } }
+    local copperFlow2 = frame.add { type = "flow", name = "copper-flow2", direction = "horizontal" }
+    copperFlow2.style.vertical_align = "center"
+    copperFlow2.add { type = "slider", name = "copper-slider", minimum_value = 0, maximum_value = 100, value = copperIncomeValue }
+    local copperTextfield = copperFlow2.add { type = "textfield", name = "copper-income-textfield", numeric = true }
+    copperTextfield.style.height = 18
+    copperTextfield.style.width = 36
+    copperFlow2.add { type = "label", caption = "%" }
 
-    local stoneTable = frame.add { type = "table", name = "stone-table", column_count = 2 }
-    stoneTable.add { type = "sprite", sprite = "item/stone" }
-    stoneTable.add { type = "label", name = "stone-income1", caption = { "income", "Stone", stoneIncome, stoneIncomeValue } }
-    frame.add { type = "slider", name = "stone-income2", minimum_value = 0, maximum_value = 100, value = stoneIncomeValue }
+    local stoneFlow1 = frame.add { type = "flow", name = "stone-flow1", direction = "horizontal" }
+    stoneFlow1.style.vertical_align = "center"
+    stoneFlow1.add { type = "sprite", sprite = "item/stone" }
+    stoneFlow1.add { type = "label", name = "stone-label", caption = { "income", "Stone", stoneIncome, stoneIncomeValue } }
+    local stoneFlow2 = frame.add { type = "flow", name = "stone-flow2", direction = "horizontal" }
+    stoneFlow2.style.vertical_align = "center"
+    stoneFlow2.add { type = "slider", name = "stone-slider", minimum_value = 0, maximum_value = 100, value = stoneIncomeValue }
+    local stoneTextfield = stoneFlow2.add { type = "textfield", name = "stone-income-textfield", numeric = true }
+    stoneTextfield.style.height = 18
+    stoneTextfield.style.width = 36
+    stoneFlow2.add { type = "label", caption = "%" }
 
-    local coalTable = frame.add { type = "table", name = "coal-table", column_count = 2 }
-    coalTable.add { type = "sprite", sprite = "item/coal" }
-    coalTable.add { type = "label", name = "coal-income1", caption = { "income", "Coal", coalIncome, coalIncomeValue } }
-    frame.add { type = "slider", name = "coal-income2", minimum_value = 0, maximum_value = 100, value = coalIncomeValue }
+    local coalFlow1 = frame.add { type = "flow", name = "coal-flow1", direction = "horizontal" }
+    coalFlow1.style.vertical_align = "center"
+    coalFlow1.add { type = "sprite", sprite = "item/coal" }
+    coalFlow1.add { type = "label", name = "coal-label", caption = { "income", "Coal", coalIncome, coalIncomeValue } }
+    local coalFlow2 = frame.add { type = "flow", name = "coal-flow2", direction = "horizontal" }
+    coalFlow2.style.vertical_align = "center"
+    coalFlow2.add { type = "slider", name = "coal-slider", minimum_value = 0, maximum_value = 100, value = coalIncomeValue }
+    local coalTextfield = coalFlow2.add { type = "textfield", name = "coal-income-textfield", numeric = true }
+    coalTextfield.style.height = 18
+    coalTextfield.style.width = 36
+    coalFlow2.add { type = "label", caption = "%" }
 
-    local oilTable = frame.add { type = "table", name = "oil-table", column_count = 2 }
-    oilTable.add { type = "sprite", sprite = "fluid/crude-oil" }
-    oilTable.add { type = "label", name = "oil-income1", caption = { "income", "Oil", oilIncome, oilIncomeValue } }
-    frame.add { type = "slider", name = "oil-income2", minimum_value = 0, maximum_value = 100, value = oilIncomeValue }
+    local oilFlow1 = frame.add { type = "flow", name = "oil-flow1", direction = "horizontal" }
+    oilFlow1.style.vertical_align = "center"
+    oilFlow1.add { type = "sprite", sprite = "fluid/crude-oil" }
+    oilFlow1.add { type = "label", name = "oil-label", caption = { "income", "Crude oil", oilIncome, oilIncomeValue } }
+    local oilFlow2 = frame.add { type = "flow", name = "oil-flow2", direction = "horizontal" }
+    oilFlow2.style.vertical_align = "center"
+    oilFlow2.add { type = "slider", name = "oil-slider", minimum_value = 0, maximum_value = 100, value = oilIncomeValue }
+    local oilTextfield = oilFlow2.add { type = "textfield", name = "oil-income-textfield", numeric = true }
+    oilTextfield.style.height = 18
+    oilTextfield.style.width = 36
+    oilFlow2.add { type = "label", caption = "%" }
+
+    local confirmButton = frame.add { type = "sprite-button", name = "custom-rep-confirm-button", sprite = "virtual-signal/signal-check" }
+    confirmButton.style.size = 24
+    confirmButton.style.left_margin = 170
 
     local alert = frame.add{type = "label", name = "losing-r-alert", caption = {"losing-resources-alert"}, visible = false}
     alert.style.font_color = {1, 0, 0, 1}
@@ -333,7 +370,7 @@ function Gui.createIncomeTab(player)
     frame.add{ type = "line", direction = "horizontal" }
 
     local spyFlow = frame.add{ type = "flow", direction = "horizontal" }
-    spyFlow.add{ type = "sprite-button", name = "spy-button", sprite = "item/raw-fish", tooltip = {"spy-tooltip"} }
+    spyFlow.add{ type = "sprite-button", name = "spy-button", sprite = "item/radar", tooltip = {"spy-tooltip"} }
     local labelFlow = spyFlow.add{ type = "flow", direction = "vertical" }
     labelFlow.add{ type = "label", caption = {"spy-1"} }
     labelFlow.add{ type = "label", caption = {"spy-2"} }
@@ -378,17 +415,17 @@ function Gui.updateIncomeTab(player)
         oilIncomeValue = Utils.ceilNthDecimal(incomePercentage.oil * 100, 2)
     end
 
-    player.gui.top["income-tab"]["income-table"]["total-income"].caption = { "total-income", totalIncome }
+    player.gui.top["income-tab"]["income-flow"]["total-income"].caption = { "total-income", totalIncome }
 
-    player.gui.top["income-tab"]["iron-table"]["iron-income1"].caption = { "income", "Iron plate", ironIncome, ironIncomeValue }
+    player.gui.top["income-tab"]["iron-flow1"]["iron-label"].caption = { "income", "Iron plate", ironIncome, ironIncomeValue }
 
-    player.gui.top["income-tab"]["copper-table"]["copper-income1"].caption = { "income", "Copper plate", copperIncome, copperIncomeValue }
+    player.gui.top["income-tab"]["copper-flow1"]["copper-label"].caption = { "income", "Copper plate", copperIncome, copperIncomeValue }
 
-    player.gui.top["income-tab"]["stone-table"]["stone-income1"].caption = { "income", "Stone", stoneIncome, stoneIncomeValue }
+    player.gui.top["income-tab"]["stone-flow1"]["stone-label"].caption = { "income", "Stone", stoneIncome, stoneIncomeValue }
 
-    player.gui.top["income-tab"]["coal-table"]["coal-income1"].caption = { "income", "Coal", coalIncome, coalIncomeValue }
+    player.gui.top["income-tab"]["coal-flow1"]["coal-label"].caption = { "income", "Coal", coalIncome, coalIncomeValue }
 
-    player.gui.top["income-tab"]["oil-table"]["oil-income1"].caption = { "income", "Oil", oilIncome, oilIncomeValue }
+    player.gui.top["income-tab"]["oil-flow1"]["oil-label"].caption = { "income", "Oil", oilIncome, oilIncomeValue }
 end
 
 ---@param player LuaPlayer @https://lua-api.factorio.com/latest/classes/LuaPlayer.html
@@ -618,10 +655,30 @@ end
 
 ---changes given player's income repartition
 ---@param player LuaPlayer @https://lua-api.factorio.com/latest/classes/LuaPlayer.html
----@param resource "iron"|"copper"|"coal"|"stone"|"oil"
----@param newValue number
-function Gui.changeIncomePercentage(player, resource, newValue)
+---@param resourcesNewValues table[key iron|copper|stone|coal|oil, value number]
+---@param isSliderUsed boolean
+function Gui.changeIncomePercentage(player, resourcesNewValues, isSliderUsed)
     local team = Player.getTeamOfPlayer(player)
+
+    if team == "spec" or global.isGameRunning == false then
+        return
+    end
+
+    local total = 0
+    local resourcesNewValuesLenght = 0
+    for k, v in pairs(resourcesNewValues) do
+        resourcesNewValuesLenght = resourcesNewValuesLenght + 1
+    end
+
+    if resourcesNewValuesLenght == 5 then
+        for k, v in pairs(resourcesNewValues) do
+            total = total + v
+        end
+
+        for k, v in pairs(resourcesNewValues) do
+            resourcesNewValues[k] = v + (100 - total) * (v / total)
+        end
+    end
 
     local ironIncomeValue = 20
     local copperIncomeValue = 20
@@ -629,115 +686,120 @@ function Gui.changeIncomePercentage(player, resource, newValue)
     local coalIncomeValue = 20
     local oilIncomeValue = 20
 
-    if not (Player.getTeamOfPlayer(player) == "spec") and global.isGameRunning then
-        local incomePercentage = global.boxs[team .. "~" .. player.name].incomePercentage
-
-        local dif = newValue / 100 - incomePercentage[resource]
-
-        if resource == "iron" then
-            local rep = Gui.rep(dif, incomePercentage["copper"], incomePercentage["stone"], incomePercentage["coal"], incomePercentage["oil"])
-
-            global.boxs[team .. "~" .. player.name].incomePercentage["copper"] = rep[1]
-            global.boxs[team .. "~" .. player.name].incomePercentage["stone"] = rep[2]
-            global.boxs[team .. "~" .. player.name].incomePercentage["coal"] = rep[3]
-            global.boxs[team .. "~" .. player.name].incomePercentage["oil"] = rep[4]
-        end
-
-        if resource == "copper" then
-            local rep = Gui.rep(dif, incomePercentage["iron"], incomePercentage["stone"], incomePercentage["coal"], incomePercentage["oil"])
-
-            global.boxs[team .. "~" .. player.name].incomePercentage["iron"] = rep[1]
-            global.boxs[team .. "~" .. player.name].incomePercentage["stone"] = rep[2]
-            global.boxs[team .. "~" .. player.name].incomePercentage["coal"] = rep[3]
-            global.boxs[team .. "~" .. player.name].incomePercentage["oil"] = rep[4]
-        end
-
-        if resource == "stone" then
-            local rep = Gui.rep(dif, incomePercentage["iron"], incomePercentage["copper"], incomePercentage["coal"], incomePercentage["oil"])
-
-            global.boxs[team .. "~" .. player.name].incomePercentage["iron"] = rep[1]
-            global.boxs[team .. "~" .. player.name].incomePercentage["copper"] = rep[2]
-            global.boxs[team .. "~" .. player.name].incomePercentage["coal"] = rep[3]
-            global.boxs[team .. "~" .. player.name].incomePercentage["oil"] = rep[4]
-        end
-
-        if resource == "coal" then
-            local rep = Gui.rep(dif, incomePercentage["iron"], incomePercentage["copper"], incomePercentage["stone"], incomePercentage["oil"])
-
-            global.boxs[team .. "~" .. player.name].incomePercentage["iron"] = rep[1]
-            global.boxs[team .. "~" .. player.name].incomePercentage["copper"] = rep[2]
-            global.boxs[team .. "~" .. player.name].incomePercentage["stone"] = rep[3]
-            global.boxs[team .. "~" .. player.name].incomePercentage["oil"] = rep[4]
-        end
-
-        if resource == "oil" then
-            local rep = Gui.rep(dif, incomePercentage["iron"], incomePercentage["copper"], incomePercentage["stone"], incomePercentage["coal"])
-
-            global.boxs[team .. "~" .. player.name].incomePercentage["iron"] = rep[1]
-            global.boxs[team .. "~" .. player.name].incomePercentage["copper"] = rep[2]
-            global.boxs[team .. "~" .. player.name].incomePercentage["stone"] = rep[3]
-            global.boxs[team .. "~" .. player.name].incomePercentage["coal"] = rep[4]
-        end
-
-        global.boxs[team .. "~" .. player.name].incomePercentage[resource] = newValue / 100
-
-        ironIncomeValue = incomePercentage.iron * 100
-
-        copperIncomeValue = incomePercentage.copper * 100
-
-        stoneIncomeValue = incomePercentage.stone * 100
-
-        coalIncomeValue = incomePercentage.coal * 100
-
-        oilIncomeValue = incomePercentage.oil * 100
-    end
-
-    if not (resource == "iron") then
-        player.gui.top["income-tab"]["iron-income2"].slider_value = Utils.ceilNthDecimal(ironIncomeValue, 2)
-    end
-
-    if not (resource == "copper") then
-        player.gui.top["income-tab"]["copper-income2"].slider_value = Utils.ceilNthDecimal(copperIncomeValue, 2)
-    end
-
-    if not (resource == "stone") then
-        player.gui.top["income-tab"]["stone-income2"].slider_value = Utils.ceilNthDecimal(stoneIncomeValue, 2)
-    end
-
-    if not (resource == "coal") then
-        player.gui.top["income-tab"]["coal-income2"].slider_value = Utils.ceilNthDecimal(coalIncomeValue, 2)
-    end
-
-    if not (resource == "oil") then
-        player.gui.top["income-tab"]["oil-income2"].slider_value = Utils.ceilNthDecimal(oilIncomeValue, 2)
-    end
+    local iron_ = Utils.isKeyDefined(resourcesNewValues, "iron")
+    local copper_ = Utils.isKeyDefined(resourcesNewValues, "copper")
+    local stone_ = Utils.isKeyDefined(resourcesNewValues, "stone")
+    local coal_ = Utils.isKeyDefined(resourcesNewValues, "coal")
+    local oil_ = Utils.isKeyDefined(resourcesNewValues, "oil")
 
     local incomePercentage = global.boxs[team .. "~" .. player.name].incomePercentage
-    local total = incomePercentage["iron"] + incomePercentage["copper"] + incomePercentage["stone"] +
-    incomePercentage["coal"] + incomePercentage["oil"]
-    if total < 1 - 10^(-5) then
-        player.gui.top["income-tab"]["losing-r-alert"].visible = true
-    else
-        player.gui.top["income-tab"]["losing-r-alert"].visible = false
+
+    local dif = 0
+    for k, v in pairs(resourcesNewValues) do
+        dif = dif + v / 100 - incomePercentage[k]
+        incomePercentage[k] = v / 100
+    end
+
+    local r = {}
+
+    if iron_ == false then
+        r[#r+1] = incomePercentage["iron"]
+    end
+
+    if copper_ == false then
+        r[#r+1] = incomePercentage["copper"]
+    end
+
+    if stone_ == false then
+        r[#r+1] = incomePercentage["stone"]
+    end
+
+    if coal_ == false then
+        r[#r+1] = incomePercentage["coal"]
+    end
+
+    if oil_ == false then
+        r[#r+1] = incomePercentage["oil"]
+    end
+
+    local distribution = Gui.distribution(dif, r)
+    local i = 1
+
+    if iron_ == false then
+        incomePercentage["iron"] = distribution[i]
+        i = i + 1
+    end
+
+    if copper_ == false then
+        incomePercentage["copper"] = distribution[i]
+        i = i + 1
+    end
+
+    if stone_ == false then
+        incomePercentage["stone"] = distribution[i]
+        i = i + 1
+    end
+
+    if coal_ == false then
+        incomePercentage["coal"] = distribution[i]
+        i = i + 1
+    end
+
+    if oil_ == false then
+        incomePercentage["oil"] = distribution[i]
+        i = i + 1
+    end
+
+    ironIncomeValue = incomePercentage.iron * 100
+    copperIncomeValue = incomePercentage.copper * 100
+    stoneIncomeValue = incomePercentage.stone * 100
+    coalIncomeValue = incomePercentage.coal * 100
+    oilIncomeValue = incomePercentage.oil * 100
+
+    if iron_ == false or isSliderUsed == false then
+        player.gui.top["income-tab"]["iron-flow2"]["iron-slider"].slider_value = Utils.ceilNthDecimal(ironIncomeValue, 2)
+    end
+
+    if copper_ == false or isSliderUsed == false then
+        player.gui.top["income-tab"]["copper-flow2"]["copper-slider"].slider_value = Utils.ceilNthDecimal(copperIncomeValue, 2)
+    end
+
+    if stone_ == false or isSliderUsed == false then
+        player.gui.top["income-tab"]["stone-flow2"]["stone-slider"].slider_value = Utils.ceilNthDecimal(stoneIncomeValue, 2)
+    end
+
+    if coal_ == false or isSliderUsed == false then
+        player.gui.top["income-tab"]["coal-flow2"]["coal-slider"].slider_value = Utils.ceilNthDecimal(coalIncomeValue, 2)
+    end
+
+    if oil_ == false or isSliderUsed == false then
+        player.gui.top["income-tab"]["oil-flow2"]["oil-slider"].slider_value = Utils.ceilNthDecimal(oilIncomeValue, 2)
     end
 end
 
-function Gui.rep(a, firstR, secondR, thirdR, fourthR)
-    local tot = firstR + secondR + thirdR + fourthR
-    if tot == 0 then
-        return { -a / 4, -a / 4, -a / 4, -a / 4 }
+---distributes the change value to all inputs
+---@param change number
+---@param inputs table[number]
+---@return table[number]
+function Gui.distribution(change, inputs)
+    local output = {}
+    local total = 0
+    for k, input in pairs(inputs) do
+        total = total + input
     end
-    local quot1 = firstR / tot
-    local quot2 = secondR / tot
-    local quot3 = thirdR / tot
-    local quot4 = fourthR / tot
 
-    firstR = firstR - a * quot1
-    secondR = secondR - a * quot2
-    thirdR = thirdR - a * quot3
-    fourthR = fourthR - a * quot4
+    if total == 0 then
+        for k, input in pairs(inputs) do
+            output[#output+1] = -change / #inputs
+        end
+        return output
+    end
 
-    return {firstR, secondR, thirdR, fourthR}
+    for k, input in pairs(inputs) do
+        output[#output+1] = input - change * (input / total)
+    end
+
+    return output
 end
 
 ---called when on_gui_click event
@@ -814,47 +876,67 @@ function Gui.onClick(event)
         end
 
         local playerInventory = player.get_main_inventory()
-        local playerFishAmount = playerInventory.get_item_count("raw-fish")
-        local fishAmount = 1
+        local playerRadarAmount = playerInventory.get_item_count("radar")
+        local radarAmount = 1
 
         if event.shift then
-            fishAmount = 10
+            radarAmount = 10
         elseif event.control then
-            fishAmount = playerFishAmount
+            radarAmount = playerRadarAmount
         end
 
-        if fishAmount > playerFishAmount then
-            player.print({"not-enough-fish", playerFishAmount, fishAmount})
+        if playerRadarAmount == 0 then
+            player.print({"no-radar"})
             return
         end
 
-        if fishAmount == 0 then
-            player.print({"no-fish"})
+        if radarAmount > playerRadarAmount then
+            player.print({"not-enough-radar", playerRadarAmount, radarAmount})
             return
         end
 
-        playerInventory.remove({name = "raw-fish", count = fishAmount})
+        playerInventory.remove({name = "radar", count = radarAmount})
         local playerTeam = Player.getTeamOfPlayer(player)
         local t
         if playerTeam == "blue" then
             if global.blueSpyingEnd < game.tick then
-                global.blueSpyingEnd = game.tick + 3600 * fishAmount
+                global.blueSpyingEnd = game.tick + 3600 * radarAmount
             else
-                global.blueSpyingEnd = global.blueSpyingEnd + 3600 * fishAmount
+                global.blueSpyingEnd = global.blueSpyingEnd + 3600 * radarAmount
             end
             t = global.blueSpyingEnd
         elseif playerTeam == "red" then
             if global.redSpyingEnd < game.tick then
-                global.redSpyingEnd = game.tick + 3600 * fishAmount
+                global.redSpyingEnd = game.tick + 3600 * radarAmount
             else
-                global.redSpyingEnd = global.redSpyingEnd + 3600 * fishAmount
+                global.redSpyingEnd = global.redSpyingEnd + 3600 * radarAmount
             end
             t = global.redSpyingEnd
         end
 
         if t then
-            game.print({"spy-time-left-message", player.name, fishAmount, playerTeam, math.floor((t - game.tick) / 3600), math.floor(((t - game.tick) / 60) % 60)})
+            player.force.print({"spy-time-left-message", player.name, radarAmount, playerTeam, math.floor((t - game.tick) / 3600), math.floor(((t - game.tick) / 60) % 60)})
         end
+    end
+
+    if elementName == "custom-rep-confirm-button" then
+        local r = {}
+        r["iron"] = tonumber(player.gui.top["income-tab"]["iron-flow2"]["iron-income-textfield"].text)
+        r["copper"] = tonumber(player.gui.top["income-tab"]["copper-flow2"]["copper-income-textfield"].text)
+        r["stone"] = tonumber(player.gui.top["income-tab"]["stone-flow2"]["stone-income-textfield"].text)
+        r["coal"] = tonumber(player.gui.top["income-tab"]["coal-flow2"]["coal-income-textfield"].text)
+        r["oil"] = tonumber(player.gui.top["income-tab"]["oil-flow2"]["oil-income-textfield"].text)
+        local total = 0
+
+        for k, v in pairs(r) do
+            total = total + v
+        end
+
+        if total > 100 then
+            player.print({"~sum-above-100"})
+        end
+
+        Gui.changeIncomePercentage(player, r, false)
     end
 
     Gui.updateGui(player)
@@ -867,24 +949,29 @@ function Gui.onValueChanged(event)
     local elementName = element.name
     local player = game.players[event.player_index]
 
-    if elementName == "iron-income2" then
-        Gui.changeIncomePercentage(player, "iron", element.slider_value)
+    if elementName == "iron-slider" then
+        local r = {}; r["iron"] = element.slider_value
+        Gui.changeIncomePercentage(player, r, true)
     end
 
-    if elementName == "copper-income2" then
-        Gui.changeIncomePercentage(player, "copper", element.slider_value)
+    if elementName == "copper-slider" then
+        local r = {}; r["copper"] = element.slider_value
+        Gui.changeIncomePercentage(player, r, true)
     end
 
-    if elementName == "stone-income2" then
-        Gui.changeIncomePercentage(player, "stone", element.slider_value)
+    if elementName == "stone-slider" then
+        local r = {}; r["stone"] = element.slider_value
+        Gui.changeIncomePercentage(player, r, true)
     end
 
-    if elementName == "coal-income2" then
-        Gui.changeIncomePercentage(player, "coal", element.slider_value)
+    if elementName == "coal-slider" then
+        local r = {}; r["coal"] = element.slider_value
+        Gui.changeIncomePercentage(player, r, true)
     end
 
-    if elementName == "oil-income2" then
-        Gui.changeIncomePercentage(player, "oil", element.slider_value)
+    if elementName == "oil-slider" then
+        local r = {}; r["oil"] = element.slider_value
+        Gui.changeIncomePercentage(player, r, true)
     end
 
     Gui.updateGui(player)
