@@ -9,6 +9,9 @@ local on_built_entity = require "on_built_entity"
 local on_entity_died = require "on_entity_died"
 local on_research_finished = require "on_research_finished"
 local on_gui_selection_state_changed = require "on_gui_selection_state_changed"
+local on_gui_checked_state_changed = require "on_gui_checked_state_changed"
+local on_script_trigger_effect = require "on_script_trigger_effect"
+local on_entity_damaged = require "on_entity_damaged"
 
 script.on_event(defines.events.on_player_joined_game, on_player_joined_game)
 script.on_event(defines.events.on_player_changed_position, on_player_changed_position)
@@ -19,6 +22,9 @@ script.on_event(defines.events.on_built_entity, on_built_entity)
 script.on_event(defines.events.on_entity_died, on_entity_died)
 script.on_event(defines.events.on_research_finished, on_research_finished)
 script.on_event(defines.events.on_gui_selection_state_changed, on_gui_selection_state_changed)
+script.on_event(defines.events.on_gui_checked_state_changed, on_gui_checked_state_changed)
+script.on_event(defines.events.on_script_trigger_effect, on_script_trigger_effect)
+script.on_event(defines.events.on_entity_damaged, on_entity_damaged)
 for k, v in pairs(on_nth_tick) do
     script.on_nth_tick(v.delay, v.f)
 end

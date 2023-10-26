@@ -4,9 +4,8 @@ local Global = require("__factory-fight__.scripts.global")
 local Enemies = require("__factory-fight__.scripts.enemies")
 local Utils = require("__factory-fight__.scripts.utils")
 local Player = require("__factory-fight__.scripts.player")
-local Config = require "__factory-fight__.config"
 
-Game = {}
+local Game = {}
 
 function Game.init()
     if global.gameEndingTick ~= -1 and global.gameEndingTick then
@@ -22,7 +21,7 @@ function Game.init()
         Generation.newGameSurface()
 
         for k, player in pairs(game.players) do
-            player.teleport(Utils.getValidPosition({0, 0}, Config.generation.specIslandSize), global.gameSurface)
+            player.teleport(Utils.getValidPosition({0, 0}, _CONFIG.generation.specIslandSize), global.gameSurface)
             Teams.changeTeam(player, "spec")
 
             Player.clearPlayerSavedInventories(player)
@@ -36,6 +35,7 @@ function Game.init()
         end
 
         Utils.resetGlobalTable("boxs")
+        Utils.resetGlobalTable("shieldedEntities")
         global.blueBoxN = 0
         global.redBoxN = 0
         global.gameStratingTick = -1
@@ -47,7 +47,8 @@ function Game.init()
 
         Teams.init()
 
-        Generation.deleteNauvis()
+        ---Nauvis is used to generate game surfaces
+        --Generation.deleteNauvis()
         Generation.newGameSurface()
     end
 end
@@ -90,7 +91,7 @@ end
 
 ---resets the map when the game is finished to start a new one, called every second
 function Game.checkReset()
-    if Utils.getResetTimer() < 0 and global.gameEndingTick ~= -1 and global.gameEndingTick then
+    if Utils.getResetTimer() < 0 and global.gameEndingTick ~= -1 and global.gameEndingTick and _CONFIG.game.autoGameReset then
         Game.init()
     end
 end

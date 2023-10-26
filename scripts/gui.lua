@@ -2,9 +2,8 @@ local Player = require("__factory-fight__.scripts.player")
 local Utils = require("__factory-fight__.scripts.utils")
 local Teams = require("__factory-fight__.scripts.teams")
 local Game = require("__factory-fight__.scripts.game")
-local Config = require "__factory-fight__.config"
 
-Gui = {}
+local Gui = {}
 
 ---creates the given player's gui
 ---@param player LuaPlayer @https://lua-api.factorio.com/latest/classes/LuaPlayer.html
@@ -78,7 +77,7 @@ function Gui.createInfoTab(player)
     joinBlueButton.style.width = 50
     joinBlueButton.style.height = 35
 
-    if team == "blue" or (not global.isGameRunning and global.winner ~= "") then
+    if team == "blue" or (not global.isGameRunning and global.winner ~= "") or _CONFIG.game.canPlayersJoinTeam == false or (Player.hasBox(player, "red") and _CONFIG.game.canPlayersChangeTeam == false) then
         joinBlueButton.visible = false
     end
 
@@ -97,7 +96,7 @@ function Gui.createInfoTab(player)
     joinRedButton.style.font_color = { r = 0.98, g = 0.66, b = 0.22 }
     joinRedButton.style.width = 50
     joinRedButton.style.height = 35
-    if team == "red" or (not global.isGameRunning and global.winner ~= "") then
+    if team == "red" or (not global.isGameRunning and global.winner ~= "") or _CONFIG.game.canPlayersJoinTeam == false or (Player.hasBox(player, "blue") and _CONFIG.game.canPlayersChangeTeam == false) then
         joinRedButton.visible = false
     end
 
@@ -161,7 +160,7 @@ function Gui.updateInfoTab(player)
     player.gui.top["info-tab-frame"]["info-tab-left-team-player"].caption = { "info-player-list", #global.bluePlayers,
         leftTeamPlayer }
 
-    if team == "blue" or (not global.isGameRunning and global.winner ~= "") then
+    if team == "blue" or (not global.isGameRunning and global.winner ~= "") or _CONFIG.game.canPlayersJoinTeam == false or (Player.hasBox(player, "red") and _CONFIG.game.canPlayersChangeTeam == false) then
         player.gui.top["info-tab-frame"]["join-blue-team"].visible = false
     else
         player.gui.top["info-tab-frame"]["join-blue-team"].visible = true
@@ -171,7 +170,7 @@ function Gui.updateInfoTab(player)
     player.gui.top["info-tab-frame"]["info-tab-right-team-player"].caption = { "info-player-list", #global.redPlayers,
         rightTeamPlayer }
 
-    if team == "red" or (not global.isGameRunning and global.winner ~= "") then
+    if team == "red" or (not global.isGameRunning and global.winner ~= "") or _CONFIG.game.canPlayersJoinTeam == false or (Player.hasBox(player, "blue") and _CONFIG.game.canPlayersChangeTeam == false) then
         player.gui.top["info-tab-frame"]["join-red-team"].visible = false
     else
         player.gui.top["info-tab-frame"]["join-red-team"].visible = true
@@ -185,7 +184,7 @@ function Gui.updateInfoTab(player)
         player.gui.top["info-tab-frame"]["spec-start-table2"].visible = true
     end
 
-    if team == "spec" or (not global.isGameRunning and global.winner ~= "") then
+    if team == "spec" or (not global.isGameRunning and global.winner ~= "") or _CONFIG.game.canPlayersJoinTeam == false then
         player.gui.top["info-tab-frame"]["spec-start-table2"]["join-spec"].visible = false
     else
         player.gui.top["info-tab-frame"]["spec-start-table2"]["join-spec"].visible = true
@@ -411,7 +410,7 @@ function Gui.updateIncomeTab(player)
         coalIncome = Utils.ceilNthDecimal((incomePercentage.coal * income), 2)
         coalIncomeValue = Utils.ceilNthDecimal(incomePercentage.coal * 100, 2)
 
-        oilIncome = Utils.ceilNthDecimal((incomePercentage.oil * income * Config.income.oilIncomeMult), 2)
+        oilIncome = Utils.ceilNthDecimal((incomePercentage.oil * income * _CONFIG.income.oilIncomeMult), 2)
         oilIncomeValue = Utils.ceilNthDecimal(incomePercentage.oil * 100, 2)
     end
 
@@ -529,29 +528,71 @@ function Gui.createAdminTab(player)
     redBox.style.height = 360
 
     local config = tabbedPane.add{ type = "tab", caption = {"config"} }
-    local configManagerFlow = tabbedPane.add{ type = "flow", direction = "horizontal" }
+    local configManagerFlow = tabbedPane.add{ type = "flow", name = "config-flow", direction = "horizontal" }
     tabbedPane.add_tab(config, configManagerFlow)
 
-    local leftTable = configManagerFlow.add{ type = "table", style = "bordered_table", column_count = 1 }
+    local leftTable = configManagerFlow.add{ type = "table", name = "left-table", style = "bordered_table", column_count = 1 }
     leftTable.style.width = 266
     local rightTable = configManagerFlow.add{ type = "table", style = "bordered_table", column_count = 1 }
     rightTable.style.width = 266
 
-    local gameSettings = leftTable.add{ type = "flow", direction = "vertical" }
+    local gameSettings = leftTable.add{ type = "flow", name = "game-settings", direction = "vertical" }
 
     gameSettings.add{ type = "label", caption = {"game"}, style = "caption_label" }
 
-    gameSettings.add{ type = "checkbox", state = false, caption = {"auto-game-restart"} }
+    gameSettings.add{ type = "checkbox", name = "auto-game-restart-checkbox", state = _CONFIG.game.autoGameRestart, caption = {"auto-game-restart"} }
+    gameSettings.add{ type = "checkbox", name = "auto-game-reset-checkbox", state = _CONFIG.game.autoGameReset, caption = {"auto-game-reset"} }
+    gameSettings.add{ type = "checkbox", name = "players-can-join-team", state = _CONFIG.game.canPlayersJoinTeam, caption = {"players-can-join-team"} }
+    gameSettings.add{ type = "checkbox", name = "players-can-change-team", state = _CONFIG.game.canPlayersChangeTeam, caption = {"players-can-change-team"} }
 
     local bitersSettings = rightTable.add{ type = "flow", direction = "vertical" }
 
     bitersSettings.add{ type = "label", caption = {"biters"}, style = "caption_label" }
 
     local playerList = tabbedPane.add{ type = "tab", caption = {"config-player-list"} }
-    local playerListFlow = tabbedPane.add{ type = "flow", direction = "vertical" }
+    local playerListFlow = tabbedPane.add{ type = "flow", direction = "horizontal" }
     tabbedPane.add_tab(playerList, playerListFlow)
 
+    local playersName = {}
+    for k, player_ in pairs(game.players) do
+        playersName[#playersName+1] = player_.name
+    end
+    table.sort(playersName)
 
+    local playerListFlow_ = playerListFlow.add{ type = "flow" }
+    local playerList_ = playerListFlow_.add{ type = "list-box", items = playersName }
+    playerList_.style.width = 266
+    playerList_.style.height = 402
+
+    local playerListFlow2_ = playerListFlow.add{ type = "flow", direction = "vertical" }
+    playerListFlow2_.style.width = 266
+    playerListFlow2_.style.height = 402
+    playerListFlow2_.style.horizontal_align = "center"
+    playerListFlow2_.style.vertical_align = "center"
+    local warnButton = playerListFlow2_.add{ type = "button", caption = {"warn"} }
+    warnButton.style.width = 160
+    warnButton.style.height = 33
+    warnButton.style.font = "default-dialog-button"
+    local kickButton = playerListFlow2_.add{ type = "button", caption = {"kick"} }
+    kickButton.style.width = 160
+    kickButton.style.height = 33
+    kickButton.style.font = "default-dialog-button"
+    local banButton = playerListFlow2_.add{ type = "button", caption = {"ban"} }
+    banButton.style.width = 160
+    banButton.style.height = 33
+    banButton.style.font = "default-dialog-button"
+    local trustButton = playerListFlow2_.add{ type = "button", caption = {"trust"} }
+    trustButton.style.width = 160
+    trustButton.style.height = 33
+    trustButton.style.font = "default-dialog-button"
+    local blueInventoryButton = playerListFlow2_.add{ type = "button", caption = {"open-blue-inventory"} }
+    blueInventoryButton.style.width = 160
+    blueInventoryButton.style.height = 33
+    blueInventoryButton.style.font = "default-dialog-button"
+    local redInventoryButton = playerListFlow2_.add{ type = "button", caption = {"open-red-inventory"} }
+    redInventoryButton.style.width = 160
+    redInventoryButton.style.height = 33
+    redInventoryButton.style.font = "default-dialog-button"
 
     frame.visible = false
 end
@@ -562,9 +603,16 @@ function Gui.updateAdminTab(player)
         return
     end
 
-    player.gui.center["admin-tab"]["admin-tab_"]["admin-tabbed-pane"]["team-manager-flow"]["team-flow"]["blue-team-flow"]["blue-player-list"].items = global.bluePlayers
-    player.gui.center["admin-tab"]["admin-tab_"]["admin-tabbed-pane"]["team-manager-flow"]["team-flow"]["spec-team-flow"]["spec-player-list"].items = global.specPlayers
-    player.gui.center["admin-tab"]["admin-tab_"]["admin-tabbed-pane"]["team-manager-flow"]["team-flow"]["red-team-flow"]["red-player-list"].items = global.redPlayers
+    local teamFlow = player.gui.center["admin-tab"]["admin-tab_"]["admin-tabbed-pane"]["team-manager-flow"]["team-flow"]
+    teamFlow["blue-team-flow"]["blue-player-list"].items = global.bluePlayers
+    teamFlow["spec-team-flow"]["spec-player-list"].items = global.specPlayers
+    teamFlow["red-team-flow"]["red-player-list"].items = global.redPlayers
+
+    local gameSettings = player.gui.center["admin-tab"]["admin-tab_"]["admin-tabbed-pane"]["config-flow"]["left-table"]["game-settings"]
+    gameSettings["auto-game-restart-checkbox"].state = _CONFIG.game.autoGameRestart
+    gameSettings["auto-game-reset-checkbox"].state = _CONFIG.game.autoGameReset
+    gameSettings["players-can-join-team"].state = _CONFIG.game.canPlayersJoinTeam
+    gameSettings["players-can-change-team"].state = _CONFIG.game.canPlayersChangeTeam
 end
 
 ---@param player LuaPlayer @https://lua-api.factorio.com/latest/classes/LuaPlayer.html
@@ -1001,6 +1049,31 @@ function Gui.onSelectionStateChanged(event)
         player.gui.screen["change-player-team-frame"].visible = true
         element.selected_index = 0
     end
+end
+
+function Gui.onCheckedStateChanged(event)
+    local element = event.element
+    local elementName = element.name
+    local player = game.players[event.player_index]
+    local state = element.state
+
+    if elementName == "auto-game-restart-checkbox" then
+        _CONFIG.game.autoGameRestart = state
+    end
+
+    if elementName == "auto-game-reset-checkbox" then
+        _CONFIG.game.autoGameReset = state
+    end
+
+    if elementName == "players-can-join-team" then
+        _CONFIG.game.canPlayersJoinTeam = state
+    end
+
+    if elementName == "players-can-change-team" then
+        _CONFIG.game.canPlayersChangeTeam = state
+    end
+
+    Gui.updateGui(player)
 end
 
 return Gui

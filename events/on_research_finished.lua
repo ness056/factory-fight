@@ -4,6 +4,8 @@ return function (event)
     local research = event.research
     local forceName = research.force.name
 
+    if forceName == "player" or forceName == "neutral" or forceName == "enemy" then return end
+
     if research.name == "new-linked-chest-1" then
         Generation.addLinkedChest(forceName, 1)
     elseif research.name == "new-linked-chest-2" then

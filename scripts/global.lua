@@ -18,6 +18,7 @@ function Global.init()              -- ness - define all global variables
     global.blueSpyingEnd = 0        -- ness - blue can spy red if this < game.tick
     global.redSpyingEnd = 0         -- ness - red can spy blue if this < game.tick
     global.inventories = {}
+    global.shieldedEntities = {}    -- ness - array with v = {entity = the entity, renderId = id of the shield render, tick = the tick where the entity has been shielded, shieldType = shield type (see _CONFIG.shieldTypes)}
 end
 
 return Global

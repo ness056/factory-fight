@@ -1,5 +1,5 @@
-local Config = require "__factory-fight__.config"
 local Utils = require("__factory-fight__.scripts.utils")
+local Enemies = require("__factory-fight__.scripts.enemies")
 
 local Generation = {}
 
@@ -51,19 +51,32 @@ function Generation.newGameSurface()
     surface.always_day = true
     --]]
 
-    local blueSZCenter = {-Config.generation.spawnerZoneDistanceFromCenterX - Config.generation.spawnerZoneWidth / 2, 0}
+    local blueSZCenter = {-_CONFIG.generation.spawnerZoneDistanceFromCenterX - _CONFIG.generation.spawnerZoneWidth / 2, 0}
     local redSZCenter = {-blueSZCenter[1], 0}
 
     surface.request_to_generate_chunks({0, 0}, 4)
 
-    local genWidth = math.ceil(Config.generation.spawnerZoneMaxWidth / 64) + 1
-    local genHeight = math.ceil(Config.generation.spawnerZoneMaxHeight / 64) + 1
+    local genWidth = math.ceil(_CONFIG.generation.spawnerZoneMaxWidth / 64) + 1
+    local genHeight = math.ceil(_CONFIG.generation.spawnerZoneMaxHeight / 64) + 1
     surface.request_to_generate_chunks(blueSZCenter, math.max(genWidth, genHeight))
     surface.request_to_generate_chunks(redSZCenter, math.max(genWidth, genHeight))
     surface.force_generate_chunk_requests()
 
-    Generation.createBorder({blueSZCenter[1] - Config.generation.spawnerZoneWidth / 2, 0}, Config.generation.spawnerZoneMaxWidth, Config.generation.spawnerZoneMaxHeight)
-    Generation.createBorder({redSZCenter[1] + Config.generation.spawnerZoneWidth / 2, 0}, Config.generation.spawnerZoneMaxWidth, Config.generation.spawnerZoneMaxHeight)
+    local BZx1 = _CONFIG.generation.spawnerZoneDistanceFromCenterX
+    local BZx2 = BZx1 + _CONFIG.generation.spawnerZoneWidth
+    local BZy = _CONFIG.generation.spawnerZoneHeight / 2
+    Generation.setTilesArea({{BZx1, -BZy}, {BZx2, BZy}}, "grass-1")
+    Generation.setTilesArea({{-BZx2, -BZy}, {-BZx1, BZy}}, "grass-1")
+
+    local BPy1 = _CONFIG.generation.bitterPathDistanceFromCenterY
+    local BPy2 = BPy1 + _CONFIG.generation.bitterPathWidth
+    Generation.setTilesArea({{-BZx1, BPy1}, {BZx1, BPy2}}, "grass-1")
+    Generation.setTilesArea({{-BZx1, -BPy2}, {BZx1, -BPy1}}, "grass-1")
+
+    surface.regenerate_decorative()
+
+    Generation.createBorder({blueSZCenter[1] - _CONFIG.generation.spawnerZoneWidth / 2, 0}, _CONFIG.generation.spawnerZoneMaxWidth, _CONFIG.generation.spawnerZoneMaxHeight)
+    Generation.createBorder({redSZCenter[1] + _CONFIG.generation.spawnerZoneWidth / 2, 0}, _CONFIG.generation.spawnerZoneMaxWidth, _CONFIG.generation.spawnerZoneMaxHeight)
 
     local blueSilo = surface.create_entity{name = "rocket-silo", position = blueSZCenter, force = "blueSilo"}
     blueSilo.minable = false
@@ -77,6 +90,8 @@ function Generation.newGameSurface()
     blueTp.destructible = false
     local redTp = surface.create_entity{name = "teleporter", position = redTPos, force = "redSilo"}
     redTp.destructible = false
+
+    Enemies.createTurrets()
 end
 
 ---loop over all the players to create thier island, called when the game is starting
@@ -97,35 +112,40 @@ function Generation.createPlayerBox(player, team)
     local factor = Utils.getSideFactor(team)
     if factor == 0 then return end
     local surface = game.surfaces[global.gameSurface]
+    local playerBoxMaxSize = _CONFIG.generation.playerBoxMaxSize
+    local playerNBoxPerLine = _CONFIG.generation.playerNBoxPerLine
+    local spawnerZoneDistanceFromCenterX = _CONFIG.generation.spawnerZoneDistanceFromCenterX
+    local bordersWidth = _CONFIG.generation.bordersWidth
+    local spawnerZoneMaxWidth = _CONFIG.generation.spawnerZoneMaxWidth
 
-    local n = math.ceil((global[team .. "BoxN"] % Config.generation.playerNBoxPerLine) / 2)
-    local d = math.floor(global[team .. "BoxN"] / Config.generation.playerNBoxPerLine)
-    local xCenter = (Config.generation.spawnerZoneDistanceFromCenterX + Config.generation.spawnerZoneMaxWidth + Config.generation.playerBoxMaxWidth / 2 + Config.generation.bordersWidth + 1 + (Config.generation.bordersWidth + Config.generation.playerBoxMaxWidth) * d) * factor
-    local yCenter = (-1) ^ global[team .. "BoxN"] * (Config.generation.playerBoxMaxHeight + Config.generation.bordersWidth) * n + ((Config.generation.playerNBoxPerLine + 1) % 2 * Config.generation.playerBoxMaxHeight / 2)
+    local n = math.ceil((global[team .. "BoxN"] % playerNBoxPerLine) / 2)
+    local d = math.floor(global[team .. "BoxN"] / playerNBoxPerLine)
+    local xCenter = (spawnerZoneDistanceFromCenterX + spawnerZoneMaxWidth + playerBoxMaxSize / 2 + bordersWidth + 1 + (bordersWidth + playerBoxMaxSize) * d) * factor
+    local yCenter = (-1) ^ global[team .. "BoxN"] * (playerBoxMaxSize + bordersWidth) * n + ((playerNBoxPerLine + 1) % 2 * playerBoxMaxSize / 2)
 
-    surface.request_to_generate_chunks({xCenter, yCenter}, math.ceil(math.max(Config.generation.playerBoxMaxWidth, Config.generation.playerBoxMaxHeight) / 64))
+    surface.request_to_generate_chunks({xCenter, yCenter}, math.ceil(playerBoxMaxSize / 64))
     surface.force_generate_chunk_requests()
 
     global[team .. "BoxN"] = global[team .. "BoxN"] + 1
 
     local area = {
-        {xCenter - Config.generation.playerBoxWidth / 2, yCenter - Config.generation.playerBoxHeight / 2},
-        {xCenter + Config.generation.playerBoxWidth / 2, yCenter + Config.generation.playerBoxHeight / 2}
+        {xCenter - _CONFIG.generation.playerBoxWidth / 2, yCenter - _CONFIG.generation.playerBoxHeight / 2},
+        {xCenter + _CONFIG.generation.playerBoxWidth / 2, yCenter + _CONFIG.generation.playerBoxHeight / 2}
     }
 
     Generation.setTilesArea(area, "landfill")
-    Generation.createBorder({xCenter, yCenter}, Config.generation.playerBoxMaxWidth, Config.generation.playerBoxMaxHeight)
+    Generation.createBorder({xCenter, yCenter}, playerBoxMaxSize, playerBoxMaxSize)
 
     local teleporter = surface.create_entity{name = "teleporter", position = {xCenter - 40 * factor, yCenter}, force = "player"}
     teleporter.destructible = false
 
-    local x = xCenter + (Config.generation.playerBoxWidth / 2 - 1) * factor
+    local x = xCenter + (_CONFIG.generation.playerBoxWidth / 2 - 1) * factor
     for i = 0, 4, 1 do
         local y = yCenter + (-1) ^ i * math.ceil(i / 2) * 10
         surface.create_entity{name = "linked-chest-blocker", position = {x, y}, force = "player"}
     end
 
-    local x_ = x + (Config.generation.playerBoxMaxWidth - Config.generation.playerBoxWidth + 8) / 4 * factor
+    local x_ = x + (playerBoxMaxSize - _CONFIG.generation.playerBoxWidth + 8) / 4 * factor
     Generation.setTilesArea({{x_ - 1, yCenter - 1}, {x_ + 1, yCenter + 1}}, "landfill")
     local tank = surface.create_entity{name = "giant-storage-tank", position = {x_, yCenter}, force = "player"}
     tank.destructible = false
@@ -138,6 +158,30 @@ function Generation.createPlayerBox(player, team)
         incomePercentage = {iron = .2, copper = .2, coal = .2, stone = .2, oil = .2},
     }
     player.teleport(Utils.getValidPosition({xCenter - 33 * factor, yCenter}))
+
+    local nSubstation = math.ceil(playerBoxMaxSize / 64)
+    local offset = (math.ceil(playerBoxMaxSize / 64) * 64 - playerBoxMaxSize) / 2
+    for i = 1, nSubstation do
+        local xPos = xCenter + (-1)^i * math.floor(i / 2) * 64
+        if xPos - 64 < xCenter - playerBoxMaxSize / 2 then
+            xPos = xPos + offset
+        elseif xPos + 64 > xCenter + playerBoxMaxSize / 2 then
+            xPos = xPos - offset + 1
+        end
+        for j = 1, nSubstation do
+            local yPos = yCenter + (-1)^j * math.floor(j / 2) * 64
+            if yPos - 64 < yCenter - playerBoxMaxSize / 2 then
+                yPos = yPos + offset
+            elseif yPos + 64 > yCenter + playerBoxMaxSize / 2 then
+                yPos = yPos - offset + 1
+            end
+            local name = "invisible-giant-substation"
+            if i == 1 and j == 1 then
+                name = "giant-substation"
+            end
+            surface.create_entity{name = name, force = "player", position = {xPos, yPos}}
+        end
+    end
 end
 
 ---@param area BoundingBox @https://lua-api.factorio.com/latest/Concepts.html#BoundingBox
@@ -162,11 +206,11 @@ end
 function Generation.createBorder(center, width, height)
     local tiles = {}
 
-    for x = 0, width + Config.generation.bordersWidth * 2, 1 do
-        for y = 0, height + Config.generation.bordersWidth * 2, 1 do
-            if x < Config.generation.bordersWidth or x - Config.generation.bordersWidth - width > 0 or
-            y < Config.generation.bordersWidth or y - Config.generation.bordersWidth - height > 0 then
-                local pos = {center[1] + x - width / 2 - Config.generation.bordersWidth, center[2] + y - height / 2 - Config.generation.bordersWidth}
+    for x = 0, width + _CONFIG.generation.bordersWidth * 2, 1 do
+        for y = 0, height + _CONFIG.generation.bordersWidth * 2, 1 do
+            if x < _CONFIG.generation.bordersWidth or x - _CONFIG.generation.bordersWidth - width > 0 or
+            y < _CONFIG.generation.bordersWidth or y - _CONFIG.generation.bordersWidth - height > 0 then
+                local pos = {center[1] + x - width / 2 - _CONFIG.generation.bordersWidth, center[2] + y - height / 2 - _CONFIG.generation.bordersWidth}
                 local tile = game.surfaces[global.gameSurface].get_tile(pos[1], pos[2])
                 if tile.name == "water" or tile.name == "deepwater" then
                     table.insert(tiles, {position = pos, name = "out-of-map"})
@@ -187,7 +231,7 @@ function Generation.addLinkedChest(force, number)
     local factor = Utils.getSideFactor(team)
     local box = global.boxs[force].center
 
-    local x = box[1] + (Config.generation.playerBoxWidth / 2 - 0.5) * factor + (factor - 1) / -2
+    local x = box[1] + (_CONFIG.generation.playerBoxWidth / 2 - 0.5) * factor + (factor - 1) / -2
     local y = box[2] + (-1) ^ number * math.ceil(number / 2) * 10 + 0.5
     local chest = surface.create_entity{name = "linked-chest", position = {x, y}, force = force}
 

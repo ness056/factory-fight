@@ -1,4 +1,3 @@
-local Config = require "__factory-fight__.config"
 local Utils = require("__factory-fight__.scripts.utils")
 
 local Player = {}
@@ -31,7 +30,7 @@ function Player.checkTeleporter(player)
         factor = -1
     end
 
-    local siloX = (Config.generation.spawnerZoneDistanceFromCenterX + Config.generation.spawnerZoneWidth / 2) * factor
+    local siloX = (_CONFIG.generation.spawnerZoneDistanceFromCenterX + _CONFIG.generation.spawnerZoneWidth / 2) * factor
     local playerBox = global.boxs[team .. "~" .. player.name].center
 
     if math.abs(pos.x) > math.abs(siloX) + 8 and math.abs(pos.x) < math.abs(siloX) + 14 and math.abs(pos.y) < 3 then
@@ -54,8 +53,8 @@ function Player.checkBitterPathBarrier(player)
 
     local pos = player.position
 
-    if math.abs(pos.x) < Config.generation.spawnerZoneDistanceFromCenterX then
-        player.teleport(Utils.getValidPosition({(Config.generation.spawnerZoneDistanceFromCenterX + 1) * factor, pos.y}))
+    if math.abs(pos.x) < _CONFIG.generation.spawnerZoneDistanceFromCenterX then
+        player.teleport(Utils.getValidPosition({(_CONFIG.generation.spawnerZoneDistanceFromCenterX + 1) * factor, pos.y}))
     end
 end
 
@@ -86,9 +85,9 @@ function Player.income(player, time)
     local oilIncome = math.floor(pendingIncome["oil"]) + math.floor(income * incomePercentage["oil"])
     pendingIncome["oil"] = pendingIncome["oil"] % 1 + (income * incomePercentage["oil"]) % 1
 
-    local x = box.center[1] + (Config.generation.playerBoxWidth / 2 - 0.5) * factor + (factor - 1) / -2
+    local x = box.center[1] + (_CONFIG.generation.playerBoxWidth / 2 - 0.5) * factor + (factor - 1) / -2
     local y = box.center[2] + 0.5
-    local x_ = x + (Config.generation.playerBoxMaxWidth - Config.generation.playerBoxWidth + 8) / 4 * factor
+    local x_ = x + (_CONFIG.generation.playerBoxMaxSize - _CONFIG.generation.playerBoxWidth + 8) / 4 * factor
 
     local chest = surface.find_entity("linked-chest", {x, y})
     local tank = surface.find_entity("giant-storage-tank", {x_, y})
@@ -96,7 +95,7 @@ function Player.income(player, time)
     if copperIncome > 0 then chest.insert({name="copper-plate", count = copperIncome}) end
     if stoneIncome > 0 then chest.insert({name="stone", count = stoneIncome}) end
     if coalIncome > 0 then chest.insert({name="coal", count = coalIncome}) end
-    if oilIncome > 0 then tank.insert_fluid({name="crude-oil", amount = oilIncome * Config.income.oilIncomeMult}) end
+    if oilIncome > 0 then tank.insert_fluid({name="crude-oil", amount = oilIncome * _CONFIG.income.oilIncomeMult}) end
 end
 
 ---calcutates the income of the given player
@@ -108,8 +107,8 @@ function Player.getIncome(player, time)
     local team = Player.getTeamOfPlayer(player)
     local factor = Utils.getSideFactor(team)
     local area = {
-        {factor * (Config.generation.spawnerZoneDistanceFromCenterX + Config.generation.spawnerZoneMaxWidth), -Config.generation.spawnerZoneMaxHeight / 2},
-        {factor * Config.generation.spawnerZoneDistanceFromCenterX, Config.generation.spawnerZoneMaxHeight / 2}
+        {factor * (_CONFIG.generation.spawnerZoneDistanceFromCenterX + _CONFIG.generation.spawnerZoneMaxWidth), -_CONFIG.generation.spawnerZoneMaxHeight / 2},
+        {factor * _CONFIG.generation.spawnerZoneDistanceFromCenterX, _CONFIG.generation.spawnerZoneMaxHeight / 2}
     }
     if team == "red" then
         local temp = area[1][1]
@@ -118,9 +117,9 @@ function Player.getIncome(player, time)
     end
     local spawners = surface.find_entities_filtered{area = area, type = "unit-spawner", force = team .. "~" .. player.name}
 
-    local value = Config.income.base
+    local value = _CONFIG.income.base
     for k, spawner in pairs(spawners) do
-        value = value + Config.income[Utils.splitString(spawner.name, "-")[1] .. "Value"]
+        value = value + _CONFIG.income[Utils.splitString(spawner.name, "-")[1] .. "Value"]
     end
     local income = math.sqrt(value) / time
 
@@ -132,11 +131,13 @@ end
 ---@param player LuaPlayer @https://lua-api.factorio.com/latest/classes/LuaPlayer.html
 ---@param msg string|LocalisedString @https://lua-api.factorio.com/latest/concepts.html#LocalisedString
 function Player.deleteEntity(entity, player, msg)
-    local stack = player.cursor_stack
-    if stack.count == 0 then
-        player.get_main_inventory().insert({name = entity.name, count = 1})
-    else
-        stack.count = stack.count + 1
+    if game.item_prototypes[entity.name] then
+        local stack = player.cursor_stack
+        if stack.count == 0 then
+            player.get_main_inventory().insert({name = entity.name, count = 1})
+        else
+            stack.count = stack.count + 1
+        end
     end
 
     player.create_local_flying_text{text = msg, position = entity.position}
@@ -158,9 +159,9 @@ function Player.on_built_entity(event)
         return
     end
 
-    if entity.position.x * factor < Config.generation.spawnerZoneDistanceFromCenterX
-    or (entity.position.x * factor > Config.generation.spawnerZoneDistanceFromCenterX + Config.generation.spawnerZoneMaxWidth and entity.type == "unit-spawner")
-    or (math.abs(entity.position.y) > Config.generation.spawnerZoneMaxHeight / 2 and entity.position.x * factor < Config.generation.spawnerZoneDistanceFromCenterX + Config.generation.spawnerZoneMaxWidth) then
+    if entity.position.x * factor < _CONFIG.generation.spawnerZoneDistanceFromCenterX
+    or (entity.position.x * factor > _CONFIG.generation.spawnerZoneDistanceFromCenterX + _CONFIG.generation.spawnerZoneMaxWidth and entity.type == "unit-spawner")
+    or (math.abs(entity.position.y) > _CONFIG.generation.spawnerZoneMaxHeight / 2 and entity.position.x * factor < _CONFIG.generation.spawnerZoneDistanceFromCenterX + _CONFIG.generation.spawnerZoneMaxWidth) then
         Player.deleteEntity(entity, player, {"cannot-be-placed"})
         return
     end
@@ -293,6 +294,17 @@ function Player.clearPlayerSavedInventories(player)
     global.inventories[i + 8].clear()
     global.inventories[i + 9].clear()
     global.inventories[i + 10].clear()
+end
+
+---check if the given player has a box in the given team
+---@param player LuaPlayer @https://lua-api.factorio.com/latest/classes/LuaPlayer.html
+---@return boolean
+function Player.hasBox(player, team)
+    if global.boxs[team .. "~" .. player.name] then
+        return true
+    else
+        return false
+    end
 end
 
 return Player

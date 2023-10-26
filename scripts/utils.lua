@@ -49,7 +49,7 @@ end
 
 ---returns the closest non colliding position for a character, returns nil if no such position has been found
 ---@param pos MapPosition @https://lua-api.factorio.com/latest/concepts.html#MapPosition
----@param radius number
+---@param radius? number
 ---@return MapPosition|nil @https://lua-api.factorio.com/latest/concepts.html#MapPosition
 function Utils.getValidPosition(pos, radius)
     if not radius then
@@ -136,12 +136,38 @@ function Utils.resetGlobalTable(name)
     end
 end
 
+---@param table table
+---@param key string
+---@return boolean
 function Utils.isKeyDefined(table, key)
     if table[key] then
         return true
     else
         return false
     end
+end
+
+---copy given table
+---@param table table
+function Utils.shallowcopy(table)
+    local copy = {}
+    for k, v in pairs(table) do
+        copy[k] = v
+    end
+    return copy
+end
+
+---checks if any value of an array passes the function
+---@param table table
+---@param f function
+---@return nil|number
+function Utils.checkTableValuesCondition(table, f)
+    for k, v in pairs(table) do
+        if f(v) then
+            return k
+        end
+    end
+    return nil
 end
 
 return Utils
